@@ -5,7 +5,7 @@ public class AudioReactionSystems : MonoBehaviour
     public AudioSource audioSource;
     private float[] spectrum = new float[256];
 
-    public float bassSensitivity = 20.0f;
+    public float bassSensitivity = 10.0f;
     public float trebleSensitivity = 25.0f;
 
     public float depthContrast = 2.5f;

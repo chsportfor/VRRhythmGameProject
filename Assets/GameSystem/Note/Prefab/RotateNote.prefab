@@ -51,7 +51,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5382669978129775254}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -112,7 +112,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-8262114864397138327
 MonoBehaviour:
@@ -129,9 +129,16 @@ MonoBehaviour:
   speed: 10
   JudgementTextPrefab: {fileID: 8128569342071571996, guid: 9087f5b254df28243ac5e45f82655a2d, type: 3}
   judgementOffset: {x: 0, y: 0, z: 5}
-  targetAngle: 90
+  targetAngle: -45
   angleTolerance: 30
-  snapShiftAngle: 90
+  snapShiftAngle: -45
+  arcRadius: 1
+  arcResolution: 20
+  arrowThickness: 0.1
+  baseStartAngle: 0
+  arrowHeadSprite: {fileID: 21300000, guid: c9aac3a08ea65754bb0da7f601af0ac1, type: 3}
+  arrowheadSize: 0.15
+  arrowheadOffset: {x: -0.5, y: -1.47}
 --- !u!54 &-6372880183408478413
 Rigidbody:
   m_ObjectHideFlags: 0
