@@ -13,6 +13,7 @@ public class TrackManager : MonoBehaviour
     public Transform rightController;
 
     public float rotationSensitivity = 1.0f;
+    public float rotationSmoothSpeed = 10f;
     public float snapVelocityThreshold = 300f;
     public float CurrentHandAngle { get; private set; }
     public float CurrentAngularVelocity { get; private set; }
@@ -60,7 +61,8 @@ public class TrackManager : MonoBehaviour
             CurrentAngularVelocity = Mathf.Lerp(CurrentAngularVelocity, rawVelocity, Time.deltaTime * 15f);
             CurrentHandAngle = rawAngle;
 
-            transform.rotation = initialRotation * Quaternion.Euler(0, 0, TotalTrackRotation);
+            Quaternion targetRotation = initialRotation * Quaternion.Euler(0, 0, TotalTrackRotation);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmoothSpeed);
         }
     }
 
