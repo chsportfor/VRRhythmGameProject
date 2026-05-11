@@ -65,8 +65,8 @@ public class RotateNote : BaseNote
         if (!isJudged && other.CompareTag("MissArea"))
         {
             SpawnJudgementText("MISS", Color.red);
+            TrackManager.Instance.RotateTracks(snapShiftAngle);
             Destroy(gameObject);
-     
         }
     }
 
