@@ -3,6 +3,9 @@ using System.Collections;
 
 public class HeightCalibrator : MonoBehaviour
 {
+    public static event System.Action<HeightCalibrator> OnCalibrationUpdated;
+    public static event System.Action<HeightCalibrator> OnCalibrationCompleted;
+
     public Transform centerEyeAnchor;
     public Transform targetTrack;
     public float heightOffset = -0.1f;
@@ -20,31 +23,67 @@ public class HeightCalibrator : MonoBehaviour
 
     public void CalibrateHeight()
     {
-        Vector3 pPos = centerEyeAnchor.position;
-        Vector3 pForward = centerEyeAnchor.forward;
+        if (centerEyeAnchor == null || targetTrack == null)
+        {
+            Debug.LogWarning("HeightCalibrator: Center Eye Anchor or Target Track is not assigned.");
+            return;
+        }
 
-        pForward.y = 0;
-        pForward.Normalize();
-
-        Vector3 newPos = new Vector3(pPos.x, pPos.y + heightOffset, pPos.z);
-        Quaternion newRot = Quaternion.LookRotation(pForward);
+        float targetHeight = centerEyeAnchor.position.y + heightOffset;
 
         if (calibrationCoroutine != null)
         {
             StopCoroutine(calibrationCoroutine);
         }
-        calibrationCoroutine = StartCoroutine(CalibrateRoutine(newPos, newRot));
+        calibrationCoroutine = StartCoroutine(CalibrateRoutine(targetHeight));
     }
 
-    private IEnumerator CalibrateRoutine(Vector3 targetPos, Quaternion targetRot)
+    private IEnumerator CalibrateRoutine(float targetHeight)
     {
-        while (Vector3.Distance(targetTrack.position, targetPos) > 0.001f)
+        OnCalibrationUpdated?.Invoke(this);
+
+        while (Mathf.Abs(targetTrack.position.y - GetSafeTargetHeight(targetHeight)) > 0.001f)
         {
-            targetTrack.position = Vector3.Lerp(targetTrack.position, targetPos, Time.deltaTime * smoothSpeed);
+            float nextHeight = Mathf.Lerp(GetCurrentTargetHeight(), targetHeight, Time.deltaTime * smoothSpeed);
+            SetTargetTrackHeight(nextHeight);
+            OnCalibrationUpdated?.Invoke(this);
             yield return null;
         }
-        
-        targetTrack.position = targetPos;
+
+        SetTargetTrackHeight(targetHeight);
         calibrationCoroutine = null;
+        OnCalibrationUpdated?.Invoke(this);
+        OnCalibrationCompleted?.Invoke(this);
+    }
+
+    private float GetCurrentTargetHeight()
+    {
+        TrackManager trackManager = GetTargetTrackManager();
+        return trackManager != null ? trackManager.DesiredRootY : targetTrack.position.y;
+    }
+
+    private float GetSafeTargetHeight(float targetHeight)
+    {
+        TrackManager trackManager = GetTargetTrackManager();
+        return trackManager != null ? trackManager.GetFloorSafeRootHeight(targetHeight) : targetHeight;
+    }
+
+    private void SetTargetTrackHeight(float targetHeight)
+    {
+        TrackManager trackManager = GetTargetTrackManager();
+        if (trackManager != null)
+        {
+            trackManager.SetDesiredRootHeight(targetHeight);
+            return;
+        }
+
+        Vector3 position = targetTrack.position;
+        position.y = targetHeight;
+        targetTrack.position = position;
+    }
+
+    private TrackManager GetTargetTrackManager()
+    {
+        return targetTrack != null ? targetTrack.GetComponent<TrackManager>() : null;
     }
 }

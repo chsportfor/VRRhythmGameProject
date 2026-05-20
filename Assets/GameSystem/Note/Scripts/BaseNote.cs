@@ -8,11 +8,26 @@ public class BaseNote : MonoBehaviour
     protected Transform target;
     protected bool isMoving = false;
     protected Vector3 moveDirection;
+    protected Vector3 localMoveDirection;
+    protected Transform movementSpace;
+    protected bool useLocalMovement;
 
     public virtual void SetTarget(Transform hitAreaTarget)
     {
         target = hitAreaTarget;
-        moveDirection = (target.position - transform.position).normalized;
+        movementSpace = transform.parent;
+        useLocalMovement = movementSpace != null && target.IsChildOf(movementSpace);
+
+        if (useLocalMovement)
+        {
+            Vector3 localTargetPosition = movementSpace.InverseTransformPoint(target.position);
+            localMoveDirection = (localTargetPosition - transform.localPosition).normalized;
+            moveDirection = movementSpace.TransformDirection(localMoveDirection).normalized;
+        }
+        else
+        {
+            moveDirection = (target.position - transform.position).normalized;
+        }
         
         // [수정됨] Unity의 LookAt 함수는 방향 벡터가 평행하거나 0일 때 NaN을 반환하여
         // 게임 뷰 렌더링 중 C++ 크래시를 유발할 수 있습니다. 이를 방지하기 위해 안전한 회전 방식을 사용합니다.
@@ -43,7 +58,18 @@ public class BaseNote : MonoBehaviour
 
     protected virtual void MoveNote()
     {
-        transform.position += moveDirection * speed * Time.deltaTime;
+        AdvanceAlongPath(speed * Time.deltaTime);
+    }
+
+    public void AdvanceAlongPath(float distance)
+    {
+        if (useLocalMovement && movementSpace != null)
+        {
+            transform.localPosition += localMoveDirection * distance;
+            return;
+        }
+
+        transform.position += moveDirection * distance;
     }
 
     protected void SpawnJudgementText(string text, Color color)
@@ -53,6 +79,42 @@ public class BaseNote : MonoBehaviour
             GameObject textObj = Instantiate(JudgementTextPrefab, judgementOffset, Quaternion.identity);
             JudgementText jt = textObj.GetComponent<JudgementText>();
             if (jt != null) jt.Setup(text, color);
+        }
+    }
+
+    protected void SpawnEffect(GameObject effectPrefab, Vector3 position, float scale = 1f, float destroyDelay = 2f)
+    {
+        if (effectPrefab == null)
+        {
+            return;
+        }
+
+        GameObject effect = Instantiate(effectPrefab, position, Quaternion.identity);
+        if (Camera.main != null)
+        {
+            effect.transform.LookAt(Camera.main.transform);
+        }
+
+        effect.transform.localScale *= scale;
+        if (destroyDelay > 0f)
+        {
+            Destroy(effect, destroyDelay);
+        }
+    }
+
+    protected void RegisterHitScore(int points)
+    {
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.AddScore(points);
+        }
+    }
+
+    protected void RegisterMiss()
+    {
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.RegisterMiss();
         }
     }
 }

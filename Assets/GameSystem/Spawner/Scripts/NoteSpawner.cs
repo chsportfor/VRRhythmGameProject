@@ -158,15 +158,15 @@ public class NoteSpawner : MonoBehaviour
         if (prefabToSpawn != null)
         {
             // 1. 노트 생성
-            GameObject noteObj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
+            Transform targetArea = hitAreaTargets != null && hitAreaTargets.Length > safeLaneIndex 
+                ? hitAreaTargets[safeLaneIndex] : null;
+            Transform noteParent = GetNoteParent(targetArea, spawnPoint);
+            GameObject noteObj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation, noteParent);
             BaseNote baseNote = noteObj.GetComponent<BaseNote>();
             
             if (baseNote != null)
             {
                 // 타겟 할당 (인덱스 범위 검사)
-                Transform targetArea = hitAreaTargets != null && hitAreaTargets.Length > safeLaneIndex 
-                    ? hitAreaTargets[safeLaneIndex] : null;
-
                 if (targetArea != null)
                 {
                     // 2. 노트가 향할 목표 설정 (판정선)
@@ -183,8 +183,7 @@ public class NoteSpawner : MonoBehaviour
                         // 지각한 시간만큼 미리 판정선 쪽으로 이동시켜(땡겨서) 위화감 없이 싱크를 맞춥니다.
                         if (timePassedSinceSpawn > 0f)
                         {
-                            Vector3 moveDirection = (targetArea.position - spawnPoint.position).normalized;
-                            noteObj.transform.position += moveDirection * (baseNote.speed * timePassedSinceSpawn);
+                            baseNote.AdvanceAlongPath(baseNote.speed * timePassedSinceSpawn);
                         }
                     }
                     else
@@ -219,5 +218,22 @@ public class NoteSpawner : MonoBehaviour
                 }
             }
         }
+    }
+
+    private Transform GetNoteParent(Transform targetArea, Transform spawnPoint)
+    {
+        TrackManager trackManager = null;
+
+        if (targetArea != null)
+        {
+            trackManager = targetArea.GetComponentInParent<TrackManager>();
+        }
+
+        if (trackManager == null && spawnPoint != null)
+        {
+            trackManager = spawnPoint.GetComponentInParent<TrackManager>();
+        }
+
+        return trackManager != null ? trackManager.transform : null;
     }
 }

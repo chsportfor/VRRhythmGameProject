@@ -136,9 +136,10 @@ MonoBehaviour:
   arcResolution: 20
   arrowThickness: 0.1
   baseStartAngle: 0
+  maxDrawnAngle: 0
   arrowHeadSprite: {fileID: 21300000, guid: c9aac3a08ea65754bb0da7f601af0ac1, type: 3}
   arrowheadSize: 0.15
-  arrowheadOffset: {x: -0.5, y: -1.47}
+  arrowheadOffset: {x: -0.5, y: -1.5}
 --- !u!54 &-6372880183408478413
 Rigidbody:
   m_ObjectHideFlags: 0

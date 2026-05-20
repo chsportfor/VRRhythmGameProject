@@ -5,7 +5,7 @@ public class LaneRenderer : MonoBehaviour
 {
     public Transform hitArea;
     public float lineWidth = 0.05f;
-    public Color lineColor = new Color(1f, 1f, 1f, 0.4f);
+    public Color lineColor = new Color(1f, 1f, 1f, 0.8f);
 
     private LineRenderer lineRenderer;
 

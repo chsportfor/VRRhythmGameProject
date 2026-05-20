@@ -54,7 +54,8 @@ public class RotateNote : BaseNote
     void Success()
     {
         isJudged = true;
-        SpawnJudgementText("SNAP PERFECT!", Color.blueViolet);
+        SpawnJudgementText("SNAP PERFECT!", new Color(0.54f, 0.17f, 0.89f));
+        RegisterHitScore(100);
         TrackManager.Instance.RotateTracks(snapShiftAngle);
 
         Destroy(gameObject);
@@ -64,7 +65,9 @@ public class RotateNote : BaseNote
     {
         if (!isJudged && other.CompareTag("MissArea"))
         {
+            isJudged = true;
             SpawnJudgementText("MISS", Color.red);
+            RegisterMiss();
             TrackManager.Instance.RotateTracks(snapShiftAngle);
             Destroy(gameObject);
         }

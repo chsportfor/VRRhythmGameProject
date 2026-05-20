@@ -48,14 +48,17 @@ public class HoldNote : BaseNote
             if (holdTickCount >= requiredTicks)
             {
                 SpawnJudgementText("PERFECT HOLD!", Color.cyan);
+                RegisterHitScore(100);
             }
             else if (holdTickCount > 0)
             {
                 SpawnJudgementText("POOR HOLD", Color.yellow);
+                RegisterHitScore(40);
             }
             else
             {
                 SpawnJudgementText("MISS!", Color.red);
+                RegisterMiss();
             }
 
             Destroy(gameObject);

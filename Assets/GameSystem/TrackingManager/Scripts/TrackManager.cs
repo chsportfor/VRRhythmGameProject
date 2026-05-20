@@ -9,6 +9,11 @@ public class TrackManager : MonoBehaviour
     public Transform[] hitZones;
     public float laneWidth = 0.55f;
 
+    [Header("Floor Clearance")]
+    public bool keepLanesAboveFloor = true;
+    public float floorY = 0f;
+    public float laneFloorClearance = 0.05f;
+
     public Transform leftController;
     public Transform rightController;
 
@@ -22,6 +27,8 @@ public class TrackManager : MonoBehaviour
 
     private Quaternion initialRotation;
     private float lastHandAngle;
+    private float desiredRootY;
+    private bool hasDesiredRootY;
 
     void Awake()
     {
@@ -33,6 +40,7 @@ public class TrackManager : MonoBehaviour
     {
         initialRotation = transform.rotation;
         SetupLanes();
+        SetDesiredRootHeight(transform.position.y);
     }
 
     void Update()
@@ -46,6 +54,11 @@ public class TrackManager : MonoBehaviour
             if (Keyboard.current.dKey.wasPressedThisFrame) SpawnNoteOnLane(2);
             if (Keyboard.current.fKey.wasPressedThisFrame) SpawnNoteOnLane(3);
         }
+    }
+
+    void LateUpdate()
+    {
+        ApplyFloorClearance();
     }
 
     void UpdateTrackRotation()
@@ -93,5 +106,90 @@ public class TrackManager : MonoBehaviour
     public void RotateTracks(float targetAngle)
     {
         TotalTrackRotation += targetAngle;
+    }
+
+    public float DesiredRootY
+    {
+        get
+        {
+            EnsureDesiredRootY();
+            return desiredRootY;
+        }
+    }
+
+    public float SetDesiredRootHeight(float rootY)
+    {
+        desiredRootY = rootY;
+        hasDesiredRootY = true;
+        ApplyFloorClearance();
+        return transform.position.y;
+    }
+
+    public float GetFloorSafeRootHeight(float requestedRootY)
+    {
+        if (!keepLanesAboveFloor)
+        {
+            return requestedRootY;
+        }
+
+        float lowestRelativeY = GetLowestLanePointY() - transform.position.y;
+        float minimumRootY = floorY + laneFloorClearance - lowestRelativeY;
+        return Mathf.Max(requestedRootY, minimumRootY);
+    }
+
+    private void ApplyFloorClearance()
+    {
+        EnsureDesiredRootY();
+
+        Vector3 position = transform.position;
+        float safeRootY = GetFloorSafeRootHeight(desiredRootY);
+        if (Mathf.Abs(position.y - safeRootY) <= 0.0001f)
+        {
+            return;
+        }
+
+        position.y = safeRootY;
+        transform.position = position;
+    }
+
+    private void EnsureDesiredRootY()
+    {
+        if (hasDesiredRootY)
+        {
+            return;
+        }
+
+        desiredRootY = transform.position.y;
+        hasDesiredRootY = true;
+    }
+
+    private float GetLowestLanePointY()
+    {
+        float lowestY = float.PositiveInfinity;
+        bool foundPoint = false;
+
+        IncludeLowestPoint(spawners, ref lowestY, ref foundPoint);
+        IncludeLowestPoint(hitZones, ref lowestY, ref foundPoint);
+
+        return foundPoint ? lowestY : transform.position.y;
+    }
+
+    private static void IncludeLowestPoint(Transform[] points, ref float lowestY, ref bool foundPoint)
+    {
+        if (points == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            if (points[i] == null)
+            {
+                continue;
+            }
+
+            lowestY = Mathf.Min(lowestY, points[i].position.y);
+            foundPoint = true;
+        }
     }
 }

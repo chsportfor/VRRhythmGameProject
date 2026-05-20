@@ -133,6 +133,10 @@ MonoBehaviour:
   greatRadius: 0.3
   goodRadius: 0.5
   judgementText: {fileID: 0}
+  hitEffectPrefab: {fileID: 5024009746357069194, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
+  hitEffectOffset: {x: 0, y: 0, z: 0}
+  hitEffectScale: 0.3
+  hitEffectLifetime: 1.5
 --- !u!54 &-6275611114006400929
 Rigidbody:
   m_ObjectHideFlags: 0

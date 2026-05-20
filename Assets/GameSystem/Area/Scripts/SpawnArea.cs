@@ -6,7 +6,7 @@ public class SpawnArea : MonoBehaviour
 
     public void SpawnNote()
     {
-        GameObject newNote = Instantiate(notePrefab, transform.position, transform.rotation);
+        GameObject newNote = Instantiate(notePrefab, transform.position, transform.rotation, GetNoteParent());
 
         BaseNote notes = newNote.GetComponent<BaseNote>();
         if (notes != null && hitArea != null)
@@ -17,7 +17,7 @@ public class SpawnArea : MonoBehaviour
 
     public void SpawnRotateNote(float angle)
     {
-        GameObject newNote = Instantiate(notePrefab, transform.position, transform.rotation);
+        GameObject newNote = Instantiate(notePrefab, transform.position, transform.rotation, GetNoteParent());
 
         RotateNote rotateNote = newNote.GetComponent<RotateNote>();
         if (rotateNote != null && hitArea != null)
@@ -25,5 +25,20 @@ public class SpawnArea : MonoBehaviour
             rotateNote.SetTarget(hitArea);
             rotateNote.InitializeSnap(angle);
         }
+    }
+
+    private Transform GetNoteParent()
+    {
+        if (hitArea != null)
+        {
+            TrackManager trackManager = hitArea.GetComponentInParent<TrackManager>();
+            if (trackManager != null)
+            {
+                return trackManager.transform;
+            }
+        }
+
+        TrackManager parentTrackManager = GetComponentInParent<TrackManager>();
+        return parentTrackManager != null ? parentTrackManager.transform : null;
     }
 }
