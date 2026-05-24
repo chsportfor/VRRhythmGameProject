@@ -19,7 +19,7 @@ public class TrackManager : MonoBehaviour
 
     public float rotationSensitivity = 1.0f;
     public float rotationSmoothSpeed = 10f;
-    public float snapVelocityThreshold = 300f;
+    public float snapVelocityThreshold = 180f; // 300f에서 180f로 하향 조정하여 자연스러운 곡선 스냅도 부드럽게 감지
     public float CurrentHandAngle { get; private set; }
     public float CurrentAngularVelocity { get; private set; }
 
@@ -46,21 +46,12 @@ public class TrackManager : MonoBehaviour
     void Update()
     {
         UpdateTrackRotation();
-
-        if (Keyboard.current != null)
-        {
-            if (Keyboard.current.aKey.wasPressedThisFrame) SpawnNoteOnLane(0);
-            if (Keyboard.current.sKey.wasPressedThisFrame) SpawnNoteOnLane(1);
-            if (Keyboard.current.dKey.wasPressedThisFrame) SpawnNoteOnLane(2);
-            if (Keyboard.current.fKey.wasPressedThisFrame) SpawnNoteOnLane(3);
-        }
     }
 
     void LateUpdate()
     {
         ApplyFloorClearance();
     }
-
     void UpdateTrackRotation()
     {
         if (leftController != null && rightController != null)
@@ -71,7 +62,7 @@ public class TrackManager : MonoBehaviour
             float rawVelocity = deltaAngle / Time.deltaTime;
             lastHandAngle = rawAngle;
 
-            CurrentAngularVelocity = Mathf.Lerp(CurrentAngularVelocity, rawVelocity, Time.deltaTime * 15f);
+            CurrentAngularVelocity = Mathf.Lerp(CurrentAngularVelocity, rawVelocity, Time.deltaTime * 35f); // 15f에서 35f로 속도 추적 반응성 대폭 상향
             CurrentHandAngle = rawAngle;
 
             Quaternion targetRotation = initialRotation * Quaternion.Euler(0, 0, TotalTrackRotation);

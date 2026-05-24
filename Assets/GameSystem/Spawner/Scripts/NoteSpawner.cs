@@ -7,233 +7,275 @@ public class NoteSpawner : MonoBehaviour
     [Header("Beatmap & Audio")]
     public BeatmapData currentBeatmap;
     public AudioSource audioSource;
-    
+
     [Header("Note Prefabs")]
     public GameObject punchNotePrefab;
     public GameObject rotateNotePrefab;
     public GameObject holdNotePrefab;
 
     [Header("Spawn Settings")]
-    [Tooltip("게임 시작 후 음악이 재생되기까지의 대기 시간 (초 단위). 첫 노트가 갑자기 눈앞에서 생성되는 것을 방지합니다.")]
+    [Tooltip("버튼 입력 후 음악 재생까지의 대기 시간(초). 노트가 미리 날아오는 시간을 확보합니다.")]
     public float musicStartDelay = 3f;
 
-    [Tooltip("노트가 판정선에 도달하기 전 미리 생성되는 시간 (초 단위). 이 값에 따라 노트의 낙하 속도가 일정하게 고정됩니다.")]
-    public float noteApproachTime = 2.0f;
+    [Tooltip("노트가 판정선 도달 전 미리 생성되는 시간(초).\n★ musicStartDelay 와 같은 값으로 설정하면 버튼 누르는 순간 노트가 스폰되어\n  3초 후 음악 시작과 첫 노트 도달이 완벽하게 동기화됩니다.")]
+    public float noteApproachTime = 3f;
 
-    [Tooltip("노트가 생성될 위치들. BeatmapData의 laneIndex와 매칭됩니다.")]
-    public Transform[] spawnPoints; 
-    
-    [Tooltip("노트가 향할 타겟들 (판정선 위치). spawnPoints와 1:1로 매칭됩니다.")]
-    public Transform[] hitAreaTargets; 
-    
-    private double dspSongTime; // 정밀한 오디오 시작 시간
-    private int nextNoteIndex = 0;
-    private bool isPlaying = false;
+    // ─── 스폰 포인트 참조 ───────────────────────────────────────────
+    // NoteSpawner는 TrackManager의 spawners / hitZones 배열을 직접 참조합니다.
+    // 인스펙터에서 별도 배열을 만들지 않아도 됩니다.
+    // TrackManager.Instance.spawners[laneIndex] = 스폰 위치
+    // TrackManager.Instance.hitZones[laneIndex]  = 판정선 위치
+    // ──────────────────────────────────────────────────────────────
 
-    // notes를 생성 시간(time - time) 기준으로 정렬하여 사용할 리스트
+    private double dspStartTime;   // AudioSettings.dspTime 기준 게임 시작 절대 시간
+    private int    nextNoteIndex = 0;
+    private bool   isPlaying    = false;
+
     private List<NoteData> sortedNotes;
+
+    // ───────────────────────────── 초기화 ────────────────────────────
 
     void Start()
     {
-        // currentBeatmap이 인스펙터에 할당되어 있다면 정렬합니다.
-        if (currentBeatmap != null)
+        // 씬 시작 시 자동 재생 완벽 차단
+        if (audioSource != null)
         {
-            PrepareBeatmap(currentBeatmap);
+            audioSource.playOnAwake = false;
+            audioSource.Stop();
         }
+
+        if (currentBeatmap != null)
+            PrepareBeatmap(currentBeatmap);
     }
 
     public void PrepareBeatmap(BeatmapData beatmap)
     {
         currentBeatmap = beatmap;
-        sortedNotes = new List<NoteData>(currentBeatmap.notes);
-        // 시간에 따라 오름차순으로 정렬
+
+        // rawCsvData에 CSV가 있지만 notes 리스트가 비어있으면 자동 파싱
+        beatmap.EnsureNotesReady();
+
+        sortedNotes    = new List<NoteData>(beatmap.notes);
         sortedNotes.Sort((a, b) => a.time.CompareTo(b.time));
     }
+
+    // ───────────────────────────── 게임 시작 ─────────────────────────
 
     public void StartGame()
     {
         if (currentBeatmap == null)
         {
-            Debug.LogWarning("BeatmapData가 설정되지 않았습니다.");
+            Debug.LogWarning("[NoteSpawner] BeatmapData가 없습니다.");
             return;
         }
-        
         if (audioSource == null)
         {
-            Debug.LogWarning("AudioSource가 연결되지 않았습니다.");
+            Debug.LogWarning("[NoteSpawner] AudioSource가 없습니다.");
             return;
         }
 
+        // 채보 노트가 정렬되어 있는지 보장
+        if (sortedNotes == null)
+            PrepareBeatmap(currentBeatmap);
+
+        // 음악 클립 교체 (BeatmapData에 musicClip이 있으면)
         if (currentBeatmap.musicClip != null)
-        {
             audioSource.clip = currentBeatmap.musicClip;
-        }
-        
-        // 지정된 시간만큼 딜레이 후 재생합니다.
-        audioSource.PlayDelayed(musicStartDelay);
-        
-        // 오디오 시스템의 매우 정밀한 시간을 기록합니다 (지연 방지)
-        // 오디오가 나중에 시작되므로 시작 시간도 미래로 설정합니다.
-        dspSongTime = AudioSettings.dspTime + musicStartDelay;
-        isPlaying = true;
+
+        audioSource.playOnAwake = false;
+        audioSource.Stop();
+
+        // ─── 핵심: PlayScheduled로 정확히 musicStartDelay 초 후에 재생 ───
+        // dspTime은 오디오 하드웨어 기준의 절대 시간이므로 프레임 드랍 영향을 받지 않습니다.
+        dspStartTime = AudioSettings.dspTime + musicStartDelay;
+        audioSource.PlayScheduled(dspStartTime);
+        // ────────────────────────────────────────────────────────────────
+
+        isPlaying     = true;
         nextNoteIndex = 0;
+
+        Debug.Log($"[NoteSpawner] 시작! {musicStartDelay}초 후 음악 재생. 비트맵 싱크 시작.");
     }
+
+    // ───────────────────────────── 매 프레임 ─────────────────────────
 
     void Update()
     {
-        // 게임이 시작되지 않았다면 입력 대기
         if (!isPlaying)
         {
+            // 버튼 입력 감지
             if (OVRInput.GetDown(OVRInput.Button.One))
-            {
                 StartGame();
-            }
-            // 키보드 엔터키로도 테스트할 수 있게 예비용으로 둡니다.
+
             if (Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame)
-            {
                 StartGame();
-            }
+
             return;
         }
 
-        if (sortedNotes == null || nextNoteIndex >= sortedNotes.Count) return;
+        if (sortedNotes == null || nextNoteIndex >= sortedNotes.Count)
+            return;
 
-        // 현재 노래의 정확한 재생 시간 계산 (audioOffset 반영)
-        // dspTime은 double형이므로 float로 변환합니다.
-        float currentAudioTime = (float)(AudioSettings.dspTime - dspSongTime) - currentBeatmap.audioOffset;
+        // ─── 핵심 싱크 계산 ─────────────────────────────────────────
+        // dspStartTime = 음악이 재생될 절대 dsp 시각
+        // AudioSettings.dspTime = 현재 절대 dsp 시각
+        //
+        // currentGameTime < 0  : 아직 음악 시작 전 (노트 사전 스폰 구간)
+        // currentGameTime >= 0 : 음악 재생 중
+        //
+        // audioOffset는 '음악 시작 기준으로 노트를 앞당기거나 뒤로 밀 때' 사용합니다.
+        float currentGameTime = (float)(AudioSettings.dspTime - dspStartTime)
+                                - currentBeatmap.audioOffset;
 
-        // 다음으로 스폰해야 할 노트를 확인
+        // ★ 버튼을 누르기 이전(currentGameTime < -musicStartDelay)에는
+        //   노트를 절대 스폰하지 않습니다. 이 가드가 없으면 이론상 불가능하지만
+        //   dspTime 정밀도 이슈로 아주 조금 일찍 스폰되는 경우를 방지합니다.
+        if (currentGameTime < -(musicStartDelay + 0.05f))
+            return;
+        // ────────────────────────────────────────────────────────────
+
         while (nextNoteIndex < sortedNotes.Count)
         {
-            NoteData nextNote = sortedNotes[nextNoteIndex];
-            
-            // 고정된 Approach Time을 사용하여 스폰 시간 계산
-            float spawnTime = nextNote.time - noteApproachTime;
+            NoteData note = sortedNotes[nextNoteIndex];
 
-            // 현재 재생 시간이 스폰 시간을 지났다면 노트 생성
-            if (currentAudioTime >= spawnTime)
+            // 스폰 시각 = 판정 시각 - 사전 접근 시간
+            float spawnTime = note.time - noteApproachTime;
+
+            if (currentGameTime >= spawnTime)
             {
-                // 곡이 시작하자마자(혹은 초반에) 나와야 하는 노트는 이미 스폰 시간이 지났을 수 있습니다.
-                // 이 경우 노트가 얼만큼 지각했는지(시간)를 계산하여 위치를 보정해줍니다.
-                float timePassedSinceSpawn = currentAudioTime - spawnTime;
-                
-                SpawnNote(nextNote, timePassedSinceSpawn);
+                float lateBy = currentGameTime - spawnTime;
+                SpawnNote(note, lateBy);
                 nextNoteIndex++;
             }
             else
             {
-                break; // 아직 스폰 시간이 안 된 노트가 나오면 루프 종료
+                break;
             }
         }
     }
 
-    void SpawnNote(NoteData data, float timePassedSinceSpawn = 0f)
+    // ───────────────────────────── 노트 스폰 ─────────────────────────
+
+    void SpawnNote(NoteData data, float lateBy = 0f)
     {
-        if (spawnPoints == null || spawnPoints.Length == 0)
+        // TrackManager가 없으면 스폰 불가
+        if (TrackManager.Instance == null)
         {
-            Debug.LogWarning("Spawn Points가 설정되지 않았습니다.");
+            Debug.LogWarning("[NoteSpawner] TrackManager.Instance가 없습니다.");
             return;
         }
 
-        // 인덱스 안전성 검사
-        int safeLaneIndex = Mathf.Clamp(data.laneIndex, 0, spawnPoints.Length - 1);
-        Transform spawnPoint = spawnPoints[safeLaneIndex];
-        
-        GameObject prefabToSpawn = null;
+        Transform[] spawners  = TrackManager.Instance.spawners;
+        Transform[] hitZones  = TrackManager.Instance.hitZones;
 
-        // 타입에 맞춰 프리팹 결정
+        if (spawners == null || hitZones == null)
+        {
+            Debug.LogWarning("[NoteSpawner] TrackManager의 spawners 또는 hitZones가 비어있습니다.");
+            return;
+        }
+
+        int laneIdx   = Mathf.Clamp(data.laneIndex, 0, spawners.Length - 1);
+        Transform sp  = spawners[laneIdx];
+        Transform hit = hitZones.Length > laneIdx ? hitZones[laneIdx] : null;
+
+        GameObject prefab = null;
         switch (data.type)
         {
-            case NoteType.Punch:
-                prefabToSpawn = punchNotePrefab;
-                break;
-            case NoteType.Rotate:
-                prefabToSpawn = rotateNotePrefab;
-                break;
-            case NoteType.Hold:
-                prefabToSpawn = holdNotePrefab;
-                break;
+            case NoteType.Punch:  prefab = punchNotePrefab;  break;
+            case NoteType.Rotate: prefab = rotateNotePrefab; break;
+            case NoteType.Hold:   prefab = holdNotePrefab;   break;
         }
 
-        if (prefabToSpawn != null)
+        if (prefab == null)
         {
-            // 1. 노트 생성
-            Transform targetArea = hitAreaTargets != null && hitAreaTargets.Length > safeLaneIndex 
-                ? hitAreaTargets[safeLaneIndex] : null;
-            Transform noteParent = GetNoteParent(targetArea, spawnPoint);
-            GameObject noteObj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation, noteParent);
-            BaseNote baseNote = noteObj.GetComponent<BaseNote>();
-            
-            if (baseNote != null)
-            {
-                // 타겟 할당 (인덱스 범위 검사)
-                if (targetArea != null)
-                {
-                    // 2. 노트가 향할 목표 설정 (판정선)
-                    baseNote.SetTarget(targetArea);
+            Debug.LogWarning($"[NoteSpawner] 프리팹이 할당되지 않았습니다. 타입: {data.type}");
+            return;
+        }
 
-                    // 3. 고정된 Approach Time에 맞춰 모든 노트의 속도를 동일하게 설정
-                    float distance = Vector3.Distance(spawnPoint.position, targetArea.position);
-                    
-                    if (noteApproachTime > 0.001f)
-                    {
-                        baseNote.speed = distance / noteApproachTime;
-                        
-                        // 만약 노트가 예정된 스폰 시간보다 늦게 생성되었다면 (예: 1초에 쳐야하는데 Approach Time이 2초일 경우, -1초에 스폰되어야 함)
-                        // 지각한 시간만큼 미리 판정선 쪽으로 이동시켜(땡겨서) 위화감 없이 싱크를 맞춥니다.
-                        if (timePassedSinceSpawn > 0f)
-                        {
-                            baseNote.AdvanceAlongPath(baseNote.speed * timePassedSinceSpawn);
-                        }
-                    }
-                    else
-                    {
-                        baseNote.speed = 0f;
-                        noteObj.transform.position = targetArea.position;
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"Hit Area Target이 설정되지 않았습니다. Lane Index: {safeLaneIndex}");
-                }
-                
-                // 4. 특별한 노트 초기화 설정
-                if (data.type == NoteType.Rotate)
-                {
-                    RotateNote rotateNote = noteObj.GetComponent<RotateNote>();
-                    if (rotateNote != null)
-                    {
-                        // 설정된 타겟 각도로 초기화
-                        rotateNote.InitializeSnap(data.targetAngle);
-                    }
-                }
-                else if (data.type == NoteType.Hold)
-                {
-                    HoldNote holdNote = noteObj.GetComponent<HoldNote>();
-                    if (holdNote != null)
-                    {
-                        // 틱(Tick) 등 HoldNote용 초기화 설정이 필요하다면 여기에 추가
-                        // 예: holdNote.SetDuration(data.duration); 
-                    }
-                }
+        // 부모는 TrackManager (회전 동기화를 위해 반드시 필요)
+        Transform parent = TrackManager.Instance.transform;
+        GameObject noteObj = Instantiate(prefab, sp.position, sp.rotation, parent);
+        BaseNote baseNote  = noteObj.GetComponent<BaseNote>();
+
+        if (baseNote == null) return;
+
+        if (hit != null)
+        {
+            baseNote.SetTarget(hit);
+
+            float dist = Vector3.Distance(sp.position, hit.position);
+            if (noteApproachTime > 0.001f)
+            {
+                baseNote.speed = dist / noteApproachTime;
+
+                // 지각만큼 미리 당겨서 싱크 보정
+                if (lateBy > 0f)
+                    baseNote.AdvanceAlongPath(baseNote.speed * lateBy);
+            }
+            else
+            {
+                baseNote.speed = 0f;
+                noteObj.transform.position = hit.position;
             }
         }
+
+        // 노트 타입별 추가 초기화
+        if (data.type == NoteType.Rotate)
+        {
+            RotateNote rn = noteObj.GetComponent<RotateNote>();
+            rn?.InitializeSnap(data.targetAngle);
+        }
+        else if (data.type == NoteType.Hold)
+        {
+            HoldNote hn = noteObj.GetComponent<HoldNote>();
+            hn?.InitializeHold(data.duration, baseNote.speed);
+        }
     }
 
-    private Transform GetNoteParent(Transform targetArea, Transform spawnPoint)
+    // ───────────────────── 에디터 자동화 (에디터 전용) ────────────────
+
+#if UNITY_EDITOR
+    // Reset()은 컴포넌트를 처음 추가하거나 우클릭 Reset 시 한 번만 호출됩니다.
+    // AddComponent는 여기서만 안전합니다.
+    private void Reset()
     {
-        TrackManager trackManager = null;
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
 
-        if (targetArea != null)
-        {
-            trackManager = targetArea.GetComponentInParent<TrackManager>();
-        }
-
-        if (trackManager == null && spawnPoint != null)
-        {
-            trackManager = spawnPoint.GetComponentInParent<TrackManager>();
-        }
-
-        return trackManager != null ? trackManager.transform : null;
+        audioSource.playOnAwake = false;
+        TryBindDefaultClip();
     }
+
+    // OnValidate는 인스펙터 값 변경, 직렬화/역직렬화 등 여러 번 호출됩니다.
+    // AddComponent를 여기서 호출하면 중복 생성되므로 GetComponent만 합니다.
+    private void OnValidate()
+    {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+    }
+
+    private void TryBindDefaultClip()
+    {
+        if (audioSource == null || audioSource.clip != null) return;
+
+        string path = "Assets/GameSystem/AudioReaction/SoundSource/02 INFX - Firework (feat. NC.A).wav";
+        AudioClip clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+
+        if (clip == null)
+        {
+            string[] guids = UnityEditor.AssetDatabase.FindAssets("INFX - Firework t:AudioClip");
+            if (guids != null && guids.Length > 0)
+                clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(
+                    UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]));
+        }
+
+        if (clip != null)
+        {
+            audioSource.clip = clip;
+            Debug.Log($"[NoteSpawner] {clip.name} 자동 바인딩 완료.");
+        }
+    }
+#endif
 }

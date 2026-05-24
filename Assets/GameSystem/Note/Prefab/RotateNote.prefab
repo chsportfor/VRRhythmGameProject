@@ -129,9 +129,9 @@ MonoBehaviour:
   speed: 10
   JudgementTextPrefab: {fileID: 8128569342071571996, guid: 9087f5b254df28243ac5e45f82655a2d, type: 3}
   judgementOffset: {x: 0, y: 0, z: 5}
-  targetAngle: -45
+  targetAngle: -90
   angleTolerance: 30
-  snapShiftAngle: -45
+  snapShiftAngle: -90
   arcRadius: 1
   arcResolution: 20
   arrowThickness: 0.1

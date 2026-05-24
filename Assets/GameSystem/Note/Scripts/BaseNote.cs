@@ -74,11 +74,10 @@ public class BaseNote : MonoBehaviour
 
     protected void SpawnJudgementText(string text, Color color)
     {
-        if (JudgementTextPrefab != null)
+        // 3D 오브젝트 복제를 걷어내고, ScoreManager 전역 이벤트를 통해 UI Canvas로 즉시 쏘아줍니다.
+        if (ScoreManager.Instance != null)
         {
-            GameObject textObj = Instantiate(JudgementTextPrefab, judgementOffset, Quaternion.identity);
-            JudgementText jt = textObj.GetComponent<JudgementText>();
-            if (jt != null) jt.Setup(text, color);
+            ScoreManager.Instance.TriggerJudgement(text, color);
         }
     }
 

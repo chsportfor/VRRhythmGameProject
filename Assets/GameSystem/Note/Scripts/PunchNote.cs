@@ -64,7 +64,7 @@ public class PunchNote : BaseNote
 
     private void MissNote()
     {
-        SpawnJudgementText("MISS", Color.gray);
+        SpawnJudgementText("MISS", Color.red);
         RegisterMiss();
         Destroy(gameObject);
     }

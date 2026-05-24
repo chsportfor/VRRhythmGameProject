@@ -40,11 +40,24 @@ public class RotateNote : BaseNote
         float currentHandAngle = TrackManager.Instance.CurrentHandAngle;
         float velocity = TrackManager.Instance.CurrentAngularVelocity;
         float velocityThreshold = TrackManager.Instance.snapVelocityThreshold;
+        
+        // 초기 각도 대비 현재 회전량 계산 (방향 및 최소 각도 충족 여부 확인용)
         float rotatedAmount = Mathf.DeltaAngle(initialHandAngle, currentHandAngle);
-        float angleDiff = Mathf.Abs(Mathf.Abs(rotatedAmount) - Mathf.Abs(targetAngle));
-        if (angleDiff <= angleTolerance && Mathf.Abs(velocity) >= velocityThreshold)
+        
+        // 1. 올바른 방향으로 회전하고 있는지 확인 (양수면 시계 방향, 음수면 반시계 방향)
+        bool isCorrectDirection = (targetAngle > 0 && rotatedAmount > 2f) || (targetAngle < 0 && rotatedAmount < -2f);
+        
+        // 2. 속도(회전 방향)도 타겟 방향과 일치하는지 확인
+        bool isVelocityDirectionCorrect = (targetAngle > 0 && velocity > 0) || (targetAngle < 0 && velocity < 0);
+
+        // 3. 목표 각도(targetAngle)에 비례하여 필요한 최소 회전량을 동적으로 계산합니다. (목표 각도의 65% 이상 회전 필요, 오작동 방지용 최소 하한선 25도)
+        // 예: 45도 스냅 -> 약 29도 필요 | 90도 스냅 -> 약 58.5도 필요 | 180도 스냅 -> 약 117도 필요
+        float minRotationRequired = Mathf.Max(25f, Mathf.Abs(targetAngle) * 0.65f);
+
+        // 4. 동적으로 계산된 최소 회전량을 달성했고, 그 과정에서 충분한 스냅 속도(Threshold)를 냈다면 성공 처리!
+        if (isCorrectDirection && isVelocityDirectionCorrect)
         {
-            if ((targetAngle > 0 && velocity > 0) || (targetAngle < 0 && velocity < 0))
+            if (Mathf.Abs(rotatedAmount) >= minRotationRequired && Mathf.Abs(velocity) >= velocityThreshold)
             {
                 Success();
             }
@@ -132,8 +145,10 @@ public class RotateNote : BaseNote
                 headRenderers[i].sortingOrder = 1; // 선(몸통)보다 위에 표시되도록 설정
             }
             
-            // 타겟 각도가 양수면 빨간색, 음수면 파란색
-            Color arrowColor = targetAngle > 0 ? Color.red : Color.cyan;
+            // 타겟 각도가 양수(시계 방향)면 매혹적인 네온 핫핑크(Electric Hot Pink), 음수(반시계 방향)면 영롱한 오션 네온 시안(Ocean Neon Cyan) 적용
+            Color arrowColor = targetAngle > 0 
+                ? new Color(1f, 0.15f, 0.45f)   // Premium Electric Neon Hot Pink (#FF2673)
+                : new Color(0f, 0.8f, 1f);      // Premium Ocean Neon Cyan (#00CCFF)
             
             // 몸통 설정 (두께 일정)
             arcRenderers[i].startWidth = arrowThickness;

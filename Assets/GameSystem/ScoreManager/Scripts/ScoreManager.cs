@@ -11,6 +11,7 @@ public class ScoreManager : MonoBehaviour
     public event Action<int> OnComboChanged;
     public event Action<int> OnMissChanged;
     public event Action<float> OnAccuracyChanged;
+    public event Action<string, Color> OnJudgementChanged;
 
     private int score;
     private int combo;
@@ -60,6 +61,11 @@ public class ScoreManager : MonoBehaviour
         {
             Instance = null;
         }
+    }
+
+    public void TriggerJudgement(string text, Color color)
+    {
+        OnJudgementChanged?.Invoke(text, color);
     }
 
     public void ResetScore()

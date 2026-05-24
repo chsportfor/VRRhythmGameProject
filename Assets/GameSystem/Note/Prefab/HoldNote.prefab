@@ -156,5 +156,9 @@ MonoBehaviour:
   speed: 10
   JudgementTextPrefab: {fileID: 8128569342071571996, guid: 9087f5b254df28243ac5e45f82655a2d, type: 3}
   judgementOffset: {x: 0, y: 0, z: 5}
-  tickRate: 0.2
+  beamColor: {r: 0, g: 0.75, b: 1, a: 0.4}
+  hitEffectPrefab: {fileID: 0}
+  hitEffectScale: 0.1
+  hitEffectLifetime: 0.1
+  tickRate: 0.1
   requiredTicks: 5

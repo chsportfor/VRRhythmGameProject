@@ -12,64 +12,105 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36946d47e136f4d4fb6a0788691d68da, type: 3}
   m_Name: Song1BeatMap
   m_EditorClassIdentifier: Assembly-CSharp::BeatmapData
-  songName: 
-  bpm: 60
+  songName: 02 INFX - Firework (feat. NC.A).wav
+  bpm: 120
   audioOffset: 0
-  musicClip: {fileID: 0}
+  musicClip: {fileID: 8300000, guid: b8cc89f6d1f7d1248b5f3086330ec617, type: 3}
+  rawCsvData: "# \uACE1 \uC774\uB984: 02 INFX - Firework (feat. NC.A).wav\r\n# BPM:
+    120\r\n# \uC624\uB514\uC624 \uC624\uD504\uC14B: 0\r\n# \uBC15\uC790(Beat), \uB808\uC778(LaneIndex),
+    \uC885\uB958(Type), [\uAC01\uB3C4/\uC9C0\uC18D\uC2DC\uAC04]\r\n4.25, 0, Punch\r\n6.00,
+    2, Punch\r\n7.75, 0, Punch\r\n9.50, 2, Punch\r\n11.25, 0, Punch\r\n13.00, 2,
+    Punch\r\n16.00, 1, Rotate, -45\r\n17.00, 1, Rotate, 45\r\n17.75, 0, Punch\r\n19.50,
+    2, Punch\r\n21.25, 0, Punch\r\n23.00, 2, Punch\r\n24.75, 0, Punch\r\n"
   notes:
   - useBeat: 1
-    beat: 0
-    time: 0
+    beat: 4.25
+    time: 2.125
     laneIndex: 0
     type: 0
     targetAngle: 0
     duration: 0
   - useBeat: 1
-    beat: 0.5
-    time: 0.5
-    laneIndex: 2
-    type: 0
-    targetAngle: 0
-    duration: 0
-  - useBeat: 1
-    beat: 1
-    time: 1
-    laneIndex: 0
-    type: 0
-    targetAngle: 0
-    duration: 0
-  - useBeat: 1
-    beat: 1.5
-    time: 1.5
-    laneIndex: 2
-    type: 0
-    targetAngle: 0
-    duration: 0
-  - useBeat: 1
-    beat: 2
-    time: 2
-    laneIndex: 3
-    type: 1
-    targetAngle: 90
-    duration: 0
-  - useBeat: 1
-    beat: 2.5
-    time: 2.5
-    laneIndex: 0
-    type: 0
-    targetAngle: 0
-    duration: 0
-  - useBeat: 1
-    beat: 3
+    beat: 6
     time: 3
     laneIndex: 2
     type: 0
     targetAngle: 0
     duration: 0
   - useBeat: 1
-    beat: 3.5
-    time: 3.5
-    laneIndex: 3
+    beat: 7.75
+    time: 3.875
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 9.5
+    time: 4.75
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 11.25
+    time: 5.625
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 13
+    time: 6.5
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 16
+    time: 8
+    laneIndex: 1
     type: 1
-    targetAngle: -90
+    targetAngle: -45
+    duration: 0
+  - useBeat: 1
+    beat: 17
+    time: 8.5
+    laneIndex: 1
+    type: 1
+    targetAngle: 45
+    duration: 0
+  - useBeat: 1
+    beat: 17.75
+    time: 8.875
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 19.5
+    time: 9.75
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 21.25
+    time: 10.625
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 23
+    time: 11.5
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 24.75
+    time: 12.375
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
     duration: 0

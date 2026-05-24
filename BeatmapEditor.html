@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Rhythm Game - 프리미엄 웹 채보 에디터</title>
+    
+    <!-- 모던 구글 폰트 적용 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #08090c;
+            --panel-bg: rgba(20, 24, 33, 0.75);
+            --neon-pink: #ff2673;
+            --neon-cyan: #00f0ff;
+            --neon-blue: #0072ff;
+            --text-main: #f5f6fa;
+            --text-muted: #8a9ba8;
+            --border-glow: rgba(0, 240, 255, 0.15);
+            --border-glow-pink: rgba(255, 38, 115, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(255, 38, 115, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 114, 255, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 헤더 스타일 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(10, 12, 18, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '⚡';
+            font-size: 20px;
+            -webkit-text-fill-color: initial;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* 메인 레이아웃 */
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* 좌측 제어 및 시각화 패널 */
+        .workspace-panel {
+            flex: 1.3;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0; /* flex 자식 스퀴즈 방지 */
+        }
+
+        /* 우측 채보 리스트 & 텍스트 에디터 패널 */
+        .sidebar-panel {
+            flex: 0.9;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 350px;
+            max-width: 500px;
+        }
+
+        /* 카드 패널 공통 */
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            opacity: 0.5;
+        }
+
+        .card.pink-accent::before {
+            background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* 오디오 업로더 및 플레이어 */
+        .audio-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dropzone {
+            border: 2px dashed rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--text-main);
+            box-shadow: 0 0 15px var(--border-glow);
+        }
+
+        .audio-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* 입력 폼 */
+        .setting-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .setting-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--border-glow);
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            border: none;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0084ff, #00ffff);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-pink {
+            background: linear-gradient(135deg, var(--neon-pink), #ff5493);
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(255, 38, 115, 0.2);
+        }
+
+        .btn-pink:hover {
+            box-shadow: 0 0 25px rgba(255, 38, 115, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        /* 중앙 트랙 시각화 (회전 트랙) */
+        .visualizer-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+        }
+
+        /* 3D 회전 트랙 판넬 */
+        .track-container {
+            width: 320px;
+            height: 320px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+        }
+
+        .track-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        .track-circle.outer {
+            width: 300px;
+            height: 300px;
+            border: 2px solid rgba(0, 240, 255, 0.15);
+            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05), 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .track-circle.inner {
+            width: 150px;
+            height: 150px;
+            border: 1px dashed rgba(255, 38, 115, 0.2);
+        }
+
+        /* 트랙 라인 (0번 라인: 왼쪽, 2번 라인: 오른쪽) */
+        .track-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.4), rgba(255, 38, 115, 0.4));
+            width: 300px;
+        }
+
+        .track-line.horizontal {
+            transform: rotate(0deg);
+        }
+
+        .track-line.vertical {
+            transform: rotate(90deg);
+            opacity: 0.15; /* 스폰되지 않는 방향은 연하게 처리 */
+        }
+
+        /* 레인 타겟 노드 표시 */
+        .lane-node {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            background: #111;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.1s ease;
+        }
+
+        .lane-node.left {
+            left: 0;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            color: var(--neon-cyan);
+        }
+
+        .lane-node.right {
+            right: 0;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 38, 115, 0.3);
+            color: var(--neon-pink);
+        }
+
+        /* 회전 각도 텍스트 오버레이 */
+        .rotation-indicator {
+            position: absolute;
+            top: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 5;
+        }
+
+        /* 실시간 타건 상태창 */
+        .keyboard-feedback {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            z-index: 5;
+        }
+
+        .key-cap {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.08s ease;
+        }
+
+        .key-cap.active {
+            background: var(--neon-cyan);
+            color: #000;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            transform: scale(0.95);
+        }
+
+        .key-cap.pink-active {
+            background: var(--neon-pink);
+            color: #fff;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
+            transform: scale(0.95);
+        }
+
+        .key-cap.purple-active {
+            background: #9b51e0;
+            color: #fff;
+            border-color: #9b51e0;
+            box-shadow: 0 0 15px #9b51e0;
+            transform: scale(0.95);
+        }
+
+        /* 조작 가이드 패널 */
+        .guide-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .guide-box strong {
+            color: var(--text-main);
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .guide-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--neon-cyan);
+        }
+
+        .guide-item.pink {
+            border-left-color: var(--neon-pink);
+        }
+
+        .guide-item.purple {
+            border-left-color: #9b51e0;
+        }
+
+        /* 텍스트 편집기 및 노트 데이터 리스트 */
+        .beatmap-table-container {
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: 380px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.5);
+            font-weight: 700;
+            color: var(--text-muted);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tr-active {
+            background: rgba(0, 240, 255, 0.05) !important;
+        }
+
+        .badge {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .badge-punch {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .badge-rotate {
+            background: rgba(255, 38, 115, 0.15);
+            color: var(--neon-pink);
+            border: 1px solid rgba(255, 38, 115, 0.2);
+        }
+
+        .badge-hold {
+            background: rgba(155, 81, 224, 0.15);
+            color: #b57cff;
+            border: 1px solid rgba(155, 81, 224, 0.2);
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--neon-pink);
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s;
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* 텍스트 영역 */
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--border-glow);
+        }
+
+        /* 메트로놈 전구 */
+        .metronome-visual {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #222;
+            box-shadow: none;
+            transition: background 0.05s ease, box-shadow 0.05s ease;
+            display: inline-block;
+        }
+
+        .metronome-visual.flash {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .current-time-indicator {
+            font-size: 18px;
+            font-weight: 800;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+            text-align: right;
+            flex: 1;
+        }
+
+        /* 스피커 노드 이펙트 */
+        .pulse-effect {
+            position: absolute;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pulse-effect.pink {
+            border-color: var(--neon-pink);
+        }
+
+        @keyframes pulse-anim {
+            0% {
+                width: 32px;
+                height: 32px;
+                opacity: 0.8;
+            }
+            100% {
+                width: 90px;
+                height: 90px;
+                opacity: 0;
+            }
+        }
+
+        /* 펀치 노트 재생 히트 이펙트 */
+        .punch-flash {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes punch-ring {
+            0% {
+                width: 30px;
+                height: 30px;
+                opacity: 1;
+                box-shadow: 0 0 20px currentColor;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+                box-shadow: 0 0 0px currentColor;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 헤더 영역 -->
+    <header>
+        <div class="logo">BEATMAP RECORDER</div>
+        <div class="current-time-indicator" id="currentTimeText">00:00.00 (비트: 0.00)</div>
+    </header>
+
+    <!-- 메인 레이아웃 -->
+    <div class="main-container">
+        
+        <!-- 좌측 워크스페이스 패널 -->
+        <div class="workspace-panel">
+            
+            <!-- 음악 로드 및 컨트롤 -->
+            <div class="card">
+                <div class="card-title">
+                    🎵 오디오 소스 & 재생 옵션
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="card-subtitle">메트로놈</span>
+                        <div class="metronome-visual" id="metroVisual"></div>
+                    </div>
+                </div>
+                
+                <div class="audio-section">
+                    <!-- 드롭존 -->
+                    <div class="dropzone" id="dropzone">
+                        이곳에 채보를 제작할 <strong>음악 파일(MP3, WAV)</strong>을 드래그 앤 드롭하거나 클릭하세요.
+                    </div>
+                    <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                    
+                    <div class="audio-info" style="display: none;" id="audioInfoContainer">
+                        <span id="audioFileName" style="font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:80%">선택된 파일 없음</span>
+                        <span id="audioDuration" style="font-family:monospace; color:var(--neon-cyan)">00:00</span>
+                    </div>
+
+                    <!-- 오디오 재생 컨트롤러 -->
+                    <div class="playback-controls">
+                        <button class="btn btn-primary" id="playBtn">▶ 재생</button>
+                        <button class="btn" id="pauseBtn">▮▮ 일시정지</button>
+                        <button class="btn" id="stopBtn">■ 정지</button>
+                        
+                        <!-- 배속 제어 -->
+                        <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
+                            <label>재생 배속:</label>
+                            <select id="playbackRateSelect" style="padding: 5px 10px; font-size:12px;">
+                                <option value="0.5">0.5x (초정밀 녹음)</option>
+                                <option value="0.75">0.75x (세밀 녹음)</option>
+                                <option value="1.0" selected>1.0x (기본 배속)</option>
+                                <option value="1.25">1.25x (빠른 검수)</option>
+                                <option value="1.5">1.5x (초고속 검수)</option>
+                            </select>
+                        </div>
+
+                        <!-- 메트로놈 소리 켜기/끄기 -->
+                        <div style="display:flex; align-items:center; gap:5px; margin-left:10px;">
+                            <input type="checkbox" id="metronomeSoundCheck" style="width:16px; height:16px; cursor:pointer;">
+                            <label for="metronomeSoundCheck" style="cursor:pointer; font-size:13px; font-weight:700;">소리 켬</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 중앙 트랙 회전 시각화 영역 -->
+            <div class="visualizer-area">
+                
+                <!-- 회전 각도 상태판 -->
+                <div class="rotation-indicator" id="rotationText">
+                    🌀 트랙 회전각: 0°
+                </div>
+
+                <!-- 3D 회전 트랙 -->
+                <div class="track-container" id="trackContainer">
+                    <div class="track-circle outer"></div>
+                    <div class="track-circle inner"></div>
+                    
+                    <div class="track-line horizontal"></div>
+                    <div class="track-line vertical"></div>
+                    
+                    <!-- 왼쪽 노드 (1라인 / Lane 0) -->
+                    <div class="lane-node left" id="nodeLeft">L (1)</div>
+                    <!-- 오른쪽 노드 (2라인 / Lane 2) -->
+                    <div class="lane-node right" id="nodeRight">R (2)</div>
+                </div>
+
+                <!-- 가상 키보드 피드백 피드 -->
+                <div class="keyboard-feedback">
+                    <div class="key-cap" id="keyCap1">1 (왼쪽)</div>
+                    <div class="key-cap" id="keyCap2">2 (오른쪽)</div>
+                    <div class="key-cap pink-active" id="keyCapQ">Q</div>
+                    <div class="key-cap pink-active" id="keyCapW">W</div>
+                    <div class="key-cap pink-active" id="keyCapE">E</div>
+                    <div class="key-cap pink-active" id="keyCapR">R</div>
+                    <div class="key-cap purple-active" id="keyCap3">3 (롱노트)</div>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- 우측 채보 리스트 & 에디터 패널 -->
+        <div class="sidebar-panel">
+            
+            <!-- 환경 설정 카드 -->
+            <div class="card pink-accent">
+                <div class="card-title">⚙️ 음악 환경 정보</div>
+                <div class="setting-row">
+                    <div class="setting-col">
+                        <label for="bpmInput">BPM (1분당 박자)</label>
+                        <input type="number" id="bpmInput" value="120" min="40" max="300">
+                    </div>
+                    <div class="setting-col">
+                        <label for="offsetInput">오디오 오프셋 (초)</label>
+                        <input type="number" id="offsetInput" value="0.00" step="0.01">
+                    </div>
+                </div>
+                
+                <!-- 단축키 가이드 상자 -->
+                <div class="guide-box">
+                    <strong>⌨️ 실시간 키보드 타건 가이드</strong>
+                    <div class="guide-grid">
+                        <div class="guide-item"><strong>1</strong>: 왼쪽 펀치 (0레인)</div>
+                        <div class="guide-item"><strong>2</strong>: 오른쪽 펀치 (2레인)</div>
+                        <div class="guide-item pink"><strong>Q / W</strong>: 스냅 -45° / 45°</div>
+                        <div class="guide-item pink"><strong>E / R</strong>: 스냅 -90° / 90°</div>
+                        <div class="guide-item purple" style="grid-column: span 2">
+                            <strong>3</strong>: 롱노트 (가운데 1레인 고정, 누르면 시작, 떼면 마감)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 채보 테이블 목록 -->
+            <div class="card" style="flex: 1; min-height: 0;">
+                <div class="card-title">
+                    📝 수집된 채보 목록
+                    <span class="card-subtitle" id="noteCountText">총 0개 노트</span>
+                </div>
+                
+                <div class="beatmap-table-container">
+                    <table id="beatmapTable">
+                        <thead>
+                            <tr>
+                                <th>박자 (Beat)</th>
+                                <th>레인</th>
+                                <th>종류</th>
+                                <th>속성</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 자바스크립트로 동적 로우 추가 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 유니티 내보내기/가져오기 -->
+            <div class="card pink-accent">
+                <div class="card-title">💾 유니티 연동 (CSV)</div>
+                <textarea id="csvTextArea" placeholder="이곳에 유니티용 CSV 데이터가 자동 생성됩니다.&#10;여기에 작성된 CSV 데이터를 붙여넣어 수정본을 가져올 수도 있습니다."></textarea>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn btn-primary" id="copyCsvBtn" style="flex:1">📋 클립보드 복사</button>
+                    <button class="btn" id="importCsvBtn" style="flex:1">📥 텍스트에서 파싱</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- BGM 오디오 엘리먼트 -->
+    <audio id="bgmAudio"></audio>
+
+    <script>
+        // 전역 상태
+        let bpm = 120;
+        let audioOffset = 0.0;
+        let notesList = [];
+        let activeHolds = {}; // 3, 4 키 누른 시작 시점 기록
+        let isPlaying = false;
+        let lastBeatIndex = -1; // 메트로놈 틱 충돌 방지용
+        let lastTriggeredPunchBeat = -999; // 펀치 노트 재생 피드백 중복 방지
+
+        // 돔 캐싱
+        const bgm = document.getElementById('bgmAudio');
+        const bpmInput = document.getElementById('bpmInput');
+        const offsetInput = document.getElementById('offsetInput');
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const audioInfoContainer = document.getElementById('audioInfoContainer');
+        const audioFileName = document.getElementById('audioFileName');
+        const audioDuration = document.getElementById('audioDuration');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const playbackRateSelect = document.getElementById('playbackRateSelect');
+        const metronomeSoundCheck = document.getElementById('metronomeSoundCheck');
+        const metroVisual = document.getElementById('metroVisual');
+        
+        const trackContainer = document.getElementById('trackContainer');
+        const rotationText = document.getElementById('rotationText');
+        const currentTimeText = document.getElementById('currentTimeText');
+        const nodeLeft = document.getElementById('nodeLeft');
+        const nodeRight = document.getElementById('nodeRight');
+        const beatmapTableBody = document.querySelector('#beatmapTable tbody');
+        const noteCountText = document.getElementById('noteCountText');
+        const csvTextArea = document.getElementById('csvTextArea');
+        const copyCsvBtn = document.getElementById('copyCsvBtn');
+        const importCsvBtn = document.getElementById('importCsvBtn');
+
+        // 메트로놈 삑 소리 생성용 Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playMetronomeClick(frequency, duration) {
+            if (!metronomeSoundCheck.checked) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.error("오디오 콘텍스트 재생 실패: ", e);
+            }
+        }
+
+        // 초기화
+        bpmInput.addEventListener('change', () => {
+            bpm = parseFloat(bpmInput.value) || 120;
+            updateCsvString();
+        });
+
+        offsetInput.addEventListener('change', () => {
+            audioOffset = parseFloat(offsetInput.value) || 0.0;
+            updateCsvString();
+        });
+
+        // 1. 드래그앤드롭 오디오 파일 로더
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleAudioFile(e.target.files[0]));
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleAudioFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleAudioFile(file) {
+            if (!file || !file.type.startsWith('audio/')) {
+                alert("정상적인 오디오 파일(MP3, WAV 등)을 선택해 주세요!");
+                return;
+            }
+
+            const objectUrl = URL.createObjectURL(file);
+            bgm.src = objectUrl;
+            bgm.load();
+
+            audioFileName.textContent = file.name;
+            audioInfoContainer.style.display = 'flex';
+            dropzone.innerHTML = `<strong>${file.name}</strong> 파일이 로드되었습니다! <span style='color:var(--neon-cyan)'>[변경하려면 클릭]</span>`;
+            
+            bgm.onloadedmetadata = () => {
+                const min = Math.floor(bgm.duration / 60);
+                const sec = Math.floor(bgm.duration % 60);
+                audioDuration.textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+            };
+        }
+
+        // 2. 재생 컨트롤
+        playBtn.addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            bgm.play();
+            isPlaying = true;
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            bgm.pause();
+            isPlaying = false;
+        });
+
+        stopBtn.addEventListener('click', () => {
+            bgm.pause();
+            bgm.currentTime = 0;
+            isPlaying = false;
+            resetTrackVisual();
+        });
+
+        playbackRateSelect.addEventListener('change', () => {
+            bgm.playbackRate = parseFloat(playbackRateSelect.value);
+        });
+
+        // 3. 실시간 키보드 녹음 매핑
+        const keyMap = {
+            '1': { lane: 0, type: 'Punch', param: '' },   // 왼쪽 펀치 (0번 레인)
+            '2': { lane: 2, type: 'Punch', param: '' },   // 오른쪽 펀치 (2번 레인)
+            'q': { lane: 1, type: 'Rotate', param: -45 }, // 스냅 -45도
+            'w': { lane: 1, type: 'Rotate', param: 45 },  // 스냅 45도
+            'e': { lane: 1, type: 'Rotate', param: -90 }, // 스냅 -90도
+            'r': { lane: 1, type: 'Rotate', param: 90 },  // 스냅 90도
+            '3': { lane: 1, type: 'Hold', param: 0 }      // 롱노트 (가운데 1번 레인 고정)
+        };
+
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (!keyMap[key]) return;
+
+            // 중복 실행 방지
+            if (e.repeat) return;
+
+            // 포커스가 인풋이나 텍스트영역에 가 있다면 키보드 녹음 스킵
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+            // 시각적 피드백
+            visualizeKeyCap(key, true);
+
+            // 곡이 재생 중인 상태에서만 실시간 시간 기록 적용
+            if (!bgm.paused && bgm.currentTime > 0) {
+                const currentSec = Math.max(0, bgm.currentTime - audioOffset);
+                const secondsPerBeat = 60 / bpm;
+                const currentBeat = Math.round((currentSec / secondsPerBeat) * 100) / 100; // 소수점 둘째자리 반올림
+
+                const noteSetup = keyMap[key];
+
+                if (noteSetup.type === 'Hold') {
+                    // 롱노트 시작점 기록
+                    activeHolds[key] = {
+                        beat: currentBeat,
+                        lane: noteSetup.lane
+                    };
+                    // 인게임 타격 연출 모사 (왼쪽/오른쪽 노드 번쩍임)
+                    animateNodeHit(noteSetup.lane);
+                } 
+                else if (noteSetup.type === 'Punch') {
+                    // 즉시 펀치노트 추가
+                    addNote(currentBeat, noteSetup.lane, 'Punch', '');
+                    animateNodeHit(noteSetup.lane);
+                } 
+                else if (noteSetup.type === 'Rotate') {
+                    // 즉시 회전노트 추가
+                    addNote(currentBeat, noteSetup.lane, 'Rotate', noteSetup.param);
+                    // 임시로 회전 시각화 업데이트
+                    updateLanesRotationImmediate();
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (!keyMap[key]) return;
+
+            visualizeKeyCap(key, false);
+
+            // 롱노트 키 뗄 때 마감 처리
+            if (keyMap[key].type === 'Hold' && activeHolds[key]) {
+                const currentSec = Math.max(0, bgm.currentTime - audioOffset);
+                const secondsPerBeat = 60 / bpm;
+                const releaseBeat = Math.round((currentSec / secondsPerBeat) * 100) / 100;
+                
+                const startData = activeHolds[key];
+                // 롱노트 지속 시간 (초 단위로 저장)
+                const durationSeconds = Math.max(0.1, (releaseBeat - startData.beat) * secondsPerBeat);
+                const roundedDuration = Math.round(durationSeconds * 100) / 100;
+
+                addNote(startData.beat, startData.lane, 'Hold', roundedDuration);
+                
+                delete activeHolds[key];
+            }
+        });
+
+        // 4. 노드 추가 및 정렬 로직
+        function addNote(beat, lane, type, param) {
+            // 중복 노트 처리 방지 (박자와 레인이 똑같다면 덮어씌움)
+            notesList = notesList.filter(n => !(Math.abs(n.beat - beat) < 0.05 && n.lane === lane));
+            
+            notesList.push({
+                beat: beat,
+                lane: lane,
+                type: type,
+                param: param
+            });
+
+            // 박자 오름차순 정렬
+            notesList.sort((a, b) => a.beat - b.beat);
+
+            updateBeatmapTable();
+            updateCsvString();
+        }
+
+        // 노트 개별 삭제
+        window.deleteNote = function(index) {
+            notesList.splice(index, 1);
+            updateBeatmapTable();
+            updateCsvString();
+            updateLanesRotationImmediate();
+        }
+
+        // 5. 시각적 피드백 연출 함수들
+        function visualizeKeyCap(key, active) {
+            const keyCap = document.getElementById('keyCap' + key.toUpperCase());
+            if (!keyCap) return;
+            
+            if (active) {
+                if (key === '1' || key === '2') keyCap.classList.add('active');
+                else if (key === 'q' || key === 'w' || key === 'e' || key === 'r') keyCap.classList.add('pink-active');
+                else if (key === '3' || key === '4') keyCap.classList.add('purple-active');
+            } else {
+                keyCap.classList.remove('active', 'pink-active', 'purple-active');
+            }
+        }
+
+        function animateNodeHit(lane) {
+            if (lane === 1) {
+                // 가운데 레인(롱노트/회전) 타건 시 양쪽 노드 동시 플래시로 파워풀한 연출
+                flashSingleNode(nodeLeft, 'var(--neon-cyan)', 'var(--neon-cyan)', false);
+                flashSingleNode(nodeRight, 'var(--neon-pink)', 'var(--neon-pink)', true);
+                return;
+            }
+            const node = (lane === 0) ? nodeLeft : nodeRight;
+            const color = (lane === 0) ? 'var(--neon-cyan)' : 'var(--neon-pink)';
+            flashSingleNode(node, color, color, lane === 2);
+        }
+
+        function flashSingleNode(node, flashBg, originColorText, isPink) {
+            if (!node) return;
+            node.style.transform = 'scale(1.3)';
+            node.style.backgroundColor = flashBg;
+            node.style.color = '#000';
+            
+            const wave = document.createElement('div');
+            wave.className = `pulse-effect ${isPink ? 'pink' : ''}`;
+            node.appendChild(wave);
+            wave.style.animation = 'pulse-anim 0.25s linear forwards';
+            
+            setTimeout(() => {
+                node.style.transform = 'none';
+                node.style.backgroundColor = '#111';
+                node.style.color = originColorText;
+                wave.remove();
+            }, 250);
+        }
+
+        // 펀치 노트 타격 사운드 (레인에 따라 음색 변화)
+        function playPunchHitSound(lane) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                // 왼쪽(0): 낮은 톤, 오른쪽(2): 높은 톤
+                osc.frequency.setValueAtTime(lane === 0 ? 220 : 330, audioCtx.currentTime);
+                osc.type = 'triangle';
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch (e) { /* 무시 */ }
+        }
+
+        // 6. 실시간 음악 재생에 따른 비주얼 업데이트 (중요!)
+        bgm.addEventListener('timeupdate', () => {
+            const currentSec = Math.max(0, bgm.currentTime - audioOffset);
+            const secondsPerBeat = 60 / bpm;
+            const currentBeat = currentSec / secondsPerBeat;
+
+            // 6-1. 상단 타임 텍스트 업데이트
+            const min = Math.floor(bgm.currentTime / 60);
+            const sec = Math.floor(bgm.currentTime % 60);
+            const ms = Math.floor((bgm.currentTime % 1) * 100);
+            currentTimeText.textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')} (비트: ${currentBeat.toFixed(2)})`;
+
+            // 6-2. 메트로놈 비주얼/사운드 틱
+            const currentBeatIndex = Math.floor(currentBeat);
+            if (currentBeatIndex !== lastBeatIndex && Math.abs(currentBeat - currentBeatIndex) < 0.1) {
+                lastBeatIndex = currentBeatIndex;
+                flashMetronome();
+            }
+
+            // 6-3. 🥊 펀치 노트 재생 피드백 — 타이밍에 맞춰 노드 플래시 + 타격음
+            for (let note of notesList) {
+                if (note.type === 'Punch' && Math.abs(note.beat - currentBeat) < 0.15) {
+                    // 같은 비트를 여러 번 트리거하지 않도록
+                    const beatKey = note.beat * 100 + note.lane;
+                    if (Math.abs(beatKey - lastTriggeredPunchBeat) > 0.5) {
+                        lastTriggeredPunchBeat = beatKey;
+                        animateNodeHit(note.lane);
+                        playPunchHitSound(note.lane);
+                    }
+                }
+            }
+
+            // 6-4. 💥 실시간 트랙 회전(Rotate) 감지 및 연출 💥
+            // 현재 재생 시간 이전에 배치된 모든 Rotate 노트를 탐색해 총 누적 각도를 계산합니다!
+            // 이렇게 계산하면 재생바를 임의로 탐색(Seek)해도 해당 시점의 정확한 라인 회전각을 그대로 시각화해줍니다!
+            let netRotation = 0;
+            for (let note of notesList) {
+                if (note.type === 'Rotate' && note.beat <= currentBeat) {
+                    netRotation += parseFloat(note.param) || 0;
+                }
+            }
+
+            // CSS 3D 회전 적용 (음수의 방향성을 고려해 정렬)
+            trackContainer.style.transform = `rotate(${-netRotation}deg)`;
+            rotationText.innerHTML = `🌀 트랙 회전각: <span style="color:var(--neon-pink);">${netRotation}°</span>`;
+
+            // 6-4. 테이블 현재 진행 줄 강조 표시
+            highlightActiveTableRows(currentBeat);
+        });
+
+        function flashMetronome() {
+            metroVisual.classList.add('flash');
+            // 메트로놈 정박 삑 소리 (BPM에 맞춰 하이톤 주파수 재생)
+            playMetronomeClick(880, 0.05);
+            setTimeout(() => metroVisual.classList.remove('flash'), 100);
+        }
+
+        function resetTrackVisual() {
+            trackContainer.style.transform = `rotate(0deg)`;
+            rotationText.innerHTML = `🌀 트랙 회전각: <span style="color:var(--neon-cyan);">0°</span>`;
+            lastBeatIndex = -1;
+        }
+
+        // 현재 노래 비트 주변의 테이블 로우 강조
+        function highlightActiveTableRows(currentBeat) {
+            const rows = beatmapTableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const beatVal = parseFloat(row.dataset.beat);
+                if (Math.abs(beatVal - currentBeat) < 0.3) {
+                    row.classList.add('tr-active');
+                } else {
+                    row.classList.remove('tr-active');
+                }
+            });
+        }
+
+        // 수동 시각화 갱신용 (회전 노트를 지우거나 새로 추가했을 때 재생상태에 맞게 회전 보정)
+        function updateLanesRotationImmediate() {
+            if (bgm.paused) {
+                const currentSec = Math.max(0, bgm.currentTime - audioOffset);
+                const secondsPerBeat = 60 / bpm;
+                const currentBeat = currentSec / secondsPerBeat;
+
+                let netRotation = 0;
+                for (let note of notesList) {
+                    if (note.type === 'Rotate' && note.beat <= currentBeat) {
+                        netRotation += parseFloat(note.param) || 0;
+                    }
+                }
+                trackContainer.style.transform = `rotate(${-netRotation}deg)`;
+                rotationText.innerHTML = `🌀 트랙 회전각: <span style="color:var(--neon-pink);">${netRotation}°</span>`;
+            }
+        }
+
+        // 7. 테이블 UI 갱신
+        function updateBeatmapTable() {
+            beatmapTableBody.innerHTML = '';
+            
+            notesList.forEach((note, index) => {
+                const tr = document.createElement('tr');
+                tr.dataset.beat = note.beat;
+                
+                // 종류에 따른 뱃지 분기
+                let badgeClass = 'badge-punch';
+                let typeText = '펀치';
+                let paramDesc = '-';
+
+                if (note.type === 'Rotate') {
+                    badgeClass = 'badge-rotate';
+                    typeText = '회전';
+                    paramDesc = `${note.param}°`;
+                } else if (note.type === 'Hold') {
+                    badgeClass = 'badge-hold';
+                    typeText = '롱';
+                    paramDesc = `${note.param}초`;
+                }
+
+                // 레인 텍스트 분기 (0=왼쪽, 1=가운데, 2=오른쪽)
+                let laneText = '가운데 (1)';
+                if (note.lane === 0) laneText = '왼쪽 (0)';
+                else if (note.lane === 2) laneText = '오른쪽 (2)';
+
+                tr.innerHTML = `
+                    <td style="font-family:monospace; font-weight:700; color:var(--neon-cyan);">${note.beat.toFixed(2)}</td>
+                    <td>${laneText}</td>
+                    <td><span class="badge ${badgeClass}">${typeText}</span></td>
+                    <td style="font-weight:600;">${paramDesc}</td>
+                    <td><button class="delete-btn" onclick="deleteNote(${index})">✕</button></td>
+                `;
+                
+                beatmapTableBody.appendChild(tr);
+            });
+
+            noteCountText.textContent = `총 ${notesList.length}개 노트`;
+        }
+
+        // 8. CSV 문자열 생성 및 동기화 (유니티 규격)
+        function updateCsvString() {
+            let csv = `# 곡 이름: ${audioFileName.textContent}\n`;
+            csv += `# BPM: ${bpm}\n`;
+            csv += `# 오디오 오프셋: ${audioOffset}\n`;
+            csv += `# 박자(Beat), 레인(LaneIndex), 종류(Type), [각도/지속시간]\n`;
+
+            notesList.forEach(note => {
+                if (note.type === 'Punch') {
+                    csv += `${note.beat.toFixed(2)}, ${note.lane}, Punch\n`;
+                } else if (note.type === 'Rotate') {
+                    csv += `${note.beat.toFixed(2)}, ${note.lane}, Rotate, ${note.param}\n`;
+                } else if (note.type === 'Hold') {
+                    csv += `${note.beat.toFixed(2)}, ${note.lane}, Hold, ${note.param}\n`;
+                }
+            });
+
+            csvTextArea.value = csv;
+        }
+
+        // 9. CSV 파싱 및 가져오기 (Import)
+        importCsvBtn.addEventListener('click', () => {
+            const text = csvTextArea.value;
+            if (!text.trim()) {
+                alert("파싱할 CSV 텍스트를 붙여넣어 주세요!");
+                return;
+            }
+
+            try {
+                const lines = text.split('\n');
+                const parsedNotes = [];
+                let parsedBpm = bpm;
+                let parsedOffset = audioOffset;
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line || line.startsWith('#') || line.startsWith('//')) {
+                        // 메타데이터 분석 (BPM 및 오프셋 복원 가능시 복원)
+                        if (line.includes('BPM:')) {
+                            const val = parseFloat(line.split('BPM:')[1]);
+                            if (val) parsedBpm = val;
+                        }
+                        if (line.includes('오디오 오프셋:')) {
+                            const val = parseFloat(line.split('오디오 오프셋:')[1]);
+                            if (val) parsedOffset = val;
+                        }
+                        return;
+                    }
+
+                    const parts = line.split(',');
+                    if (parts.length < 3) return;
+
+                    const beat = parseFloat(parts[0].trim());
+                    const lane = parseInt(parts[1].trim());
+                    const typeRaw = parts[2].trim().toLowerCase();
+                    let type = 'Punch';
+                    let param = '';
+
+                    if (typeRaw.startsWith('r')) {
+                        type = 'Rotate';
+                        param = parseFloat(parts[3]?.trim()) || 90;
+                    } else if (typeRaw.startsWith('h')) {
+                        type = 'Hold';
+                        param = parseFloat(parts[3]?.trim()) || 1.0;
+                    }
+
+                    if (!isNaN(beat) && !isNaN(lane)) {
+                        parsedNotes.push({
+                            beat: beat,
+                            lane: lane,
+                            type: type,
+                            param: param
+                        });
+                    }
+                });
+
+                if (parsedNotes.length === 0) {
+                    alert("파싱할 수 있는 유효한 노트 데이터가 없습니다! 주석(#)을 제외한 CSV 규격을 확인해 주세요.");
+                    return;
+                }
+
+                // 성공적으로 파싱 시 로드
+                bpm = parsedBpm;
+                bpmInput.value = bpm;
+                audioOffset = parsedOffset;
+                offsetInput.value = audioOffset;
+
+                notesList = parsedNotes;
+                notesList.sort((a, b) => a.beat - b.beat);
+                
+                updateBeatmapTable();
+                updateCsvString();
+                updateLanesRotationImmediate();
+                
+                alert(`성공적으로 ${parsedNotes.length}개의 노트를 파싱하여 채보를 로드했습니다!`);
+            } catch (err) {
+                alert("CSV 파싱 중 에러가 발생했습니다. 규격을 확인하세요: " + err.message);
+            }
+        });
+
+        // 10. 클립보드 원클릭 복사
+        copyCsvBtn.addEventListener('click', () => {
+            csvTextArea.select();
+            document.execCommand('copy');
+            
+            const originalText = copyCsvBtn.innerHTML;
+            copyCsvBtn.innerHTML = '✨ 복사 완료!';
+            copyCsvBtn.style.background = 'linear-gradient(135deg, #00ff2b, #00ffa2)';
+            copyCsvBtn.style.boxShadow = '0 0 15px rgba(0, 255, 43, 0.3)';
+            
+            setTimeout(() => {
+                copyCsvBtn.innerHTML = originalText;
+                copyCsvBtn.style.background = '';
+                copyCsvBtn.style.boxShadow = '';
+            }, 1500);
+        });
+
+        // 초기 수동 데이터셋 설정
+        updateBeatmapTable();
+        updateCsvString();
+    </script>
+</body>
+</html>
