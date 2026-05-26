@@ -16,6 +16,20 @@ public class AudioReactionSystems : MonoBehaviour
 
     public OVRInput.Controller controllerMask = OVRInput.Controller.RTouch | OVRInput.Controller.LTouch;
 
+    // ── bHaptics 연동을 위해 외부에서 읽을 수 있도록 노출 ──
+    // 0.0 ~ 1.0 범위의 최종 처리된 주파수 강도 값
+    /// <summary>저음역 최종 강도 (0~1). Vest/상체 햅틱에 사용.</summary>
+    public float FinalBass { get; private set; }
+
+    /// <summary>고음역 최종 강도 (0~1). Forearm/팔 햅틱에 사용.</summary>
+    public float FinalTreble { get; private set; }
+
+    /// <summary>저음역 원시 피크 값 (스펙트럼 [0~3] 최대값).</summary>
+    public float RawBassPeak { get; private set; }
+
+    /// <summary>고음역 원시 피크 값 (스펙트럼 [25~50] 최대값).</summary>
+    public float RawTreblePeak { get; private set; }
+
     void Update()
     {
         if (audioSource == null) return;
@@ -54,6 +68,12 @@ public class AudioReactionSystems : MonoBehaviour
 
         finalBass = Mathf.Clamp01(finalBass);
         finalTreble = Mathf.Clamp01(finalTreble);
+
+        // 외부 접근용 프로퍼티 갱신
+        FinalBass = finalBass;
+        FinalTreble = finalTreble;
+        RawBassPeak = bassPeak;
+        RawTreblePeak = treblePeak;
 
         ApplyOVRHaptics(finalBass, finalTreble);
 

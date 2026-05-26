@@ -891,6 +891,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &716053088
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1441949093026986903, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_Name
+      value: '[bhaptics]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986904, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
 --- !u!1 &726607095
 GameObject:
   m_ObjectHideFlags: 0
@@ -1762,13 +1819,42 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4056679322728506094, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 950387568681696405}
   m_SourcePrefab: {fileID: 100100000, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
 --- !u!82 &950387568681696403 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 1073801635679292165, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
   m_PrefabInstance: {fileID: 950387568681696402}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &950387568681696404 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4056679322728506094, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
+  m_PrefabInstance: {fileID: 950387568681696402}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &950387568681696405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950387568681696404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 140bfd2cfa970714eafdccea75d8bab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BhapticsAudioHaptic
+  audioReaction: {fileID: 0}
+  enableBhaptics: 1
+  vestIntensityMultiplier: 1.5
+  vestThreshold: 0.05
+  vestDurationMs: 50
+  forearmIntensityMultiplier: 2
+  forearmThreshold: 0.05
+  forearmDurationMs: 40
+  updateInterval: 0.03
 --- !u!1001 &3784667809599722725
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2091,3 +2177,4 @@ SceneRoots:
   - {fileID: 528360086}
   - {fileID: 8688237081650349356}
   - {fileID: 4818038077392077284}
+  - {fileID: 716053088}

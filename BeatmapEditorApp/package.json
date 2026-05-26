@@ -1,0 +1,14 @@
+{
+  "name": "vr-rhythm-beatmap-editor",
+  "version": "2.0.0",
+  "description": "Standalone Desktop Editor for VR Rhythm Game Beatmaps",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
+  },
+  "author": "Antigravity",
+  "license": "MIT"
+}
