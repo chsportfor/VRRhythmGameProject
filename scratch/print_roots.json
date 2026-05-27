@@ -1,0 +1,4 @@
+{
+  "csharpCode": "var roots = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects(); foreach (var r in roots) { Debug.Log(\"Root GameObject: \" + r.name); }",
+  "isMethodBody": true
+}

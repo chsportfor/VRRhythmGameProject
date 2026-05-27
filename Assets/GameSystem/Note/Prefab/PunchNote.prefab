@@ -129,9 +129,9 @@ MonoBehaviour:
   speed: 10
   JudgementTextPrefab: {fileID: 8128569342071571996, guid: 9087f5b254df28243ac5e45f82655a2d, type: 3}
   judgementOffset: {x: 0, y: 0, z: 5}
-  perfectRadius: 0.15
-  greatRadius: 0.3
-  goodRadius: 0.5
+  perfectRadius: 0.35
+  greatRadius: 0.7
+  goodRadius: 1.2
   judgementText: {fileID: 0}
   hitEffectPrefab: {fileID: 5024009746357069194, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
   hitEffectOffset: {x: 0, y: 0, z: 0}

@@ -15,6 +15,10 @@ public class HeightCalibrator : MonoBehaviour
 
     private void Update()
     {
+        // Only allow calibration during active gameplay to avoid button conflicts
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+            return;
+
         if (OVRInput.GetDown(OVRInput.Button.Two)) 
         {
             CalibrateHeight();

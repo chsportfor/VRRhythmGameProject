@@ -1,0 +1,4 @@
+{
+  "csharpCode": "string sourcePath = \"Assets/Scenes/SampleScene.unity\"; string destPath = \"Assets/Scenes/MainMenuScene.unity\"; if (UnityEditor.AssetDatabase.CopyAsset(sourcePath, destPath)) { var scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(destPath); string[] objectsToDelete = new string[] { \"TrackingManager\", \"MissArea\", \"AudioReactionSystem\", \"NoteSpawner\", \"ScoreManager\", \"UICanvas\", \"GameManager\" }; foreach (var name in objectsToDelete) { GameObject go = GameObject.Find(name); if (go != null) { GameObject.DestroyImmediate(go); } } UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene); Debug.Log(\"[Setup] MainMenuScene created by copying SampleScene and stripping gameplay track successfully.\"); } else { Debug.LogError(\"[Setup] Failed to copy SampleScene to MainMenuScene.\"); }",
+  "isMethodBody": true
+}

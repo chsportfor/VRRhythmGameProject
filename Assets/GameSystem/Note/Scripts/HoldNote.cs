@@ -49,8 +49,8 @@ public class HoldNote : BaseNote
         if (boxCollider != null)
         {
             boxCollider.size = new Vector3(boxCollider.size.x, boxCollider.size.y, laserLength);
-            // 피벗이 끝에 있으므로 콜라이더 중심을 뒤쪽으로 이동
-            boxCollider.center = new Vector3(boxCollider.center.x, boxCollider.center.y, laserLength * 0.5f);
+            // 피벗이 머리에 있으므로 콜라이더 중심을 뒤쪽(-Z)으로 이동
+            boxCollider.center = new Vector3(boxCollider.center.x, boxCollider.center.y, -laserLength * 0.5f);
         }
 
         // 3. 프리미엄 '실린더(원기둥)' SF 레이저 빔 오브젝트를 동적으로 생성하여 자식으로 배치합니다.
@@ -74,8 +74,8 @@ public class HoldNote : BaseNote
 
         // 실린더 기본 높이가 2이므로, laserLength가 되기 위해 Y 스케일은 laserLength * 0.5f로 설정합니다.
         visualObj.transform.localScale = new Vector3(1f, laserLength * 0.5f, 1f);
-        // 비주얼 중심을 뒤로 땡겨 콜라이더 영역과 정확히 동기화시킵니다.
-        visualObj.transform.localPosition = new Vector3(0f, 0f, laserLength * 0.5f);
+        // 비주얼 중심을 뒤쪽(-Z)으로 땡겨 콜라이더 영역과 정확히 동기화시킵니다.
+        visualObj.transform.localPosition = new Vector3(0f, 0f, -laserLength * 0.5f);
 
         // 4. 반투명한 일렉트릭 에너지 빔 머티리얼을 실린더에 적용 (Sprites/Default 셰이더)
         MeshRenderer cylinderRenderer = visualObj.GetComponent<MeshRenderer>();

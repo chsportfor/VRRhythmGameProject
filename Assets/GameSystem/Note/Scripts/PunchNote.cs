@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class PunchNote : BaseNote
 {
-    public float perfectRadius = 0.15f;
-    public float greatRadius = 0.3f;
-    public float goodRadius = 0.5f;
+    public float perfectRadius = 0.35f;
+    public float greatRadius = 0.7f;
+    public float goodRadius = 1.2f;
     public JudgementText judgementText;
 
     [Header("Effects")]

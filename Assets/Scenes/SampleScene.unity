@@ -499,7 +499,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 28838454782298a46a71dfe32eb2bad3, type: 2}
     - target: {fileID: 7032467349399709840, guid: f12f63abcd185f7479243231455f88a6, type: 3}
       propertyPath: musicStartDelay
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7032467349399709840, guid: f12f63abcd185f7479243231455f88a6, type: 3}
       propertyPath: noteApproachTime
@@ -2009,7 +2009,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -5330066173920167478, guid: d8af588374b317545bcff90d79e19dbb, type: 3}
       propertyPath: hudHorizontalOffset
-      value: 700
+      value: 950
       objectReference: {fileID: 0}
     - target: {fileID: 3434844135277584632, guid: d8af588374b317545bcff90d79e19dbb, type: 3}
       propertyPath: m_Name

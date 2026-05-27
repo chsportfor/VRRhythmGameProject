@@ -67,7 +67,7 @@ public class RotateNote : BaseNote
     void Success()
     {
         isJudged = true;
-        SpawnJudgementText("SNAP PERFECT!", new Color(0.54f, 0.17f, 0.89f));
+        SpawnJudgementText("Rotate PERFECT!", new Color(0.54f, 0.17f, 0.89f));
         RegisterHitScore(100);
         TrackManager.Instance.RotateTracks(snapShiftAngle);
 

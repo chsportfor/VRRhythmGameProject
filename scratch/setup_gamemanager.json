@@ -1,0 +1,4 @@
+{
+  "csharpCode": "GameObject oldGm = GameObject.Find(\"GameManager\"); if (oldGm != null) { GameObject.DestroyImmediate(oldGm); } GameObject gmObj = new GameObject(\"GameManager\"); GameManager gm = gmObj.AddComponent<GameManager>(); string assetPath = \"Assets/GameSystem/Spawner/BeatMap/02 INFX - Firework (feat. NC.A).asset\"; BeatmapData beatmap = UnityEditor.AssetDatabase.LoadAssetAtPath<BeatmapData>(assetPath); if (beatmap != null) { gm.availableSongs = new List<BeatmapData> { beatmap }; Debug.Log(\"[Setup] GameManager created and 02 INFX beatmap assigned successfully.\"); } else { Debug.LogError(\"[Setup] Beatmap asset not found at: \" + assetPath); } UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());",
+  "isMethodBody": true
+}

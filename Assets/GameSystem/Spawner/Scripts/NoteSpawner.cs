@@ -91,10 +91,37 @@ public class NoteSpawner : MonoBehaviour
         audioSource.PlayScheduled(dspStartTime);
         // ────────────────────────────────────────────────────────────────
 
+        // UI 카운트다운 시작
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.StartCountdown(musicStartDelay);
+        }
+
         isPlaying     = true;
         nextNoteIndex = 0;
 
         Debug.Log($"[NoteSpawner] 시작! {musicStartDelay}초 후 음악 재생. 비트맵 싱크 시작.");
+    }
+
+    public void ResetGame()
+    {
+        isPlaying = false;
+        nextNoteIndex = 0;
+
+        if (audioSource != null)
+        {
+            audioSource.Stop();
+        }
+
+        // Destroy all spawned note objects in the scene
+        BaseNote[] activeNotes = FindObjectsByType<BaseNote>(FindObjectsSortMode.None);
+        foreach (BaseNote note in activeNotes)
+        {
+            if (note != null && note.gameObject != null)
+            {
+                Destroy(note.gameObject);
+            }
+        }
     }
 
     // ───────────────────────────── 매 프레임 ─────────────────────────
@@ -103,6 +130,10 @@ public class NoteSpawner : MonoBehaviour
     {
         if (!isPlaying)
         {
+            // Only allow starting if in the Playing state
+            if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+                return;
+
             // 버튼 입력 감지
             if (OVRInput.GetDown(OVRInput.Button.One))
                 StartGame();
@@ -150,6 +181,16 @@ public class NoteSpawner : MonoBehaviour
             else
             {
                 break;
+            }
+        }
+
+        // Check if all notes are spawned and audio has finished playing to trigger OnSongFinished
+        if (isPlaying && nextNoteIndex >= sortedNotes.Count && audioSource != null && !audioSource.isPlaying && AudioSettings.dspTime > dspStartTime)
+        {
+            isPlaying = false;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnSongFinished();
             }
         }
     }
@@ -228,7 +269,13 @@ public class NoteSpawner : MonoBehaviour
         else if (data.type == NoteType.Hold)
         {
             HoldNote hn = noteObj.GetComponent<HoldNote>();
-            hn?.InitializeHold(data.duration, baseNote.speed);
+            if (hn != null)
+            {
+                // Convert duration from beats to real-world seconds based on BPM
+                float bpm = currentBeatmap != null ? currentBeatmap.bpm : 120f;
+                float durationInSeconds = data.duration * (60f / bpm);
+                hn.InitializeHold(durationInSeconds, baseNote.speed);
+            }
         }
     }
 

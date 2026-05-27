@@ -1,0 +1,10 @@
+{
+  "assetRef": {
+    "instanceID": 0,
+    "assetPath": "Assets/GameSystem/Note/Prefab/PunchNote.prefab"
+  },
+  "viewQuery": {
+    "NamePattern": "perfectRadius|greatRadius|goodRadius",
+    "MaxDepth": 2
+  }
+}

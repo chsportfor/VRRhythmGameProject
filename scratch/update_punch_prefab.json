@@ -1,0 +1,4 @@
+{
+  "csharpCode": "string prefabPath = \"Assets/GameSystem/Note/Prefab/PunchNote.prefab\"; GameObject prefabObj = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath); if (prefabObj != null) { PunchNote punch = prefabObj.GetComponent<PunchNote>(); if (punch != null) { punch.perfectRadius = 0.35f; punch.greatRadius = 0.7f; punch.goodRadius = 1.2f; UnityEditor.EditorUtility.SetDirty(prefabObj); UnityEditor.AssetDatabase.SaveAssets(); Debug.Log(\"[Setup] PunchNote Prefab radii updated successfully to 0.35m / 0.7m / 1.2m.\"); } else { Debug.LogError(\"[Setup] PunchNote component not found on prefab!\"); } } else { Debug.LogError(\"[Setup] Prefab not found at path: \" + prefabPath); }",
+  "isMethodBody": true
+}

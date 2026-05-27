@@ -1,0 +1,4 @@
+{
+  "csharpCode": "var newScenes = new System.Collections.Generic.List<UnityEditor.EditorBuildSettingsScene>(); newScenes.Add(new UnityEditor.EditorBuildSettingsScene(\"Assets/Scenes/MainMenuScene.unity\", true)); newScenes.Add(new UnityEditor.EditorBuildSettingsScene(\"Assets/Scenes/SampleScene.unity\", true)); UnityEditor.EditorBuildSettings.scenes = newScenes.ToArray(); Debug.Log(\"[Setup] MainMenuScene and SampleScene registered in Build Settings.\");",
+  "isMethodBody": true
+}

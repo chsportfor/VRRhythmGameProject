@@ -3,7 +3,7 @@ using Bhaptics.SDK2;
 
 /// <summary>
 /// AudioReactionSystems의 주파수 분석 결과를 bHaptics Suit에 매핑합니다.
-/// - Vest (상체, 32모터): 저음역 (FinalBass)
+/// - Vest (상체, 40모터): 저음역 (FinalBass)
 /// - ForearmL / ForearmR (팔, 각 3모터): 고음역 (FinalTreble)
 /// 
 /// 사용법:
@@ -55,8 +55,8 @@ public class BhapticsAudioHaptic : MonoBehaviour
     // ── 내부 상태 ──
     private float lastUpdateTime = 0f;
 
-    // Vest: 앞면 16 + 뒷면 16 = 32 모터
-    private int[] vestMotors = new int[32];
+    // Vest: 앞면 20 + 뒷면 20 = 40 모터 (TactSuit X40 스펙 반영)
+    private int[] vestMotors = new int[40];
 
     // Forearm: 각 3 모터
     private int[] forearmLMotors = new int[3];
