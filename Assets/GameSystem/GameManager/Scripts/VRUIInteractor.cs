@@ -152,17 +152,14 @@ public class VRUIInteractor : MonoBehaviour
 [RequireComponent(typeof(BoxCollider))]
 public class VRButton : MonoBehaviour
 {
-    [Header("Colors")]
-    public Color normalColor = new Color(0.12f, 0.18f, 0.32f, 0.8f);
-    public Color hoverColor = new Color(0.18f, 0.42f, 0.95f, 0.95f);
-    public Color clickColor = new Color(0f, 0.85f, 1f, 1f);
+    [HideInInspector] public Color normalColor = new Color(0.12f, 0.18f, 0.32f, 0.8f);
+    [HideInInspector] public Color hoverColor = new Color(0.18f, 0.42f, 0.95f, 0.95f);
+    [HideInInspector] public Color clickColor = new Color(0f, 0.85f, 1f, 1f);
 
-    [Header("Hover Scaling")]
-    public Vector3 hoverScaleMultiplier = new Vector3(1.05f, 1.05f, 1f);
-    public float animationSpeed = 12f;
+    [HideInInspector] public Vector3 hoverScaleMultiplier = new Vector3(1.05f, 1.05f, 1f);
+    [HideInInspector] public float animationSpeed = 12f;
 
-    [Header("Events")]
-    public UnityEvent onClickEvent = new UnityEvent();
+    [HideInInspector] public UnityEvent onClickEvent = new UnityEvent();
 
     private UnityEngine.UI.Image backgroundImage;
     private BoxCollider boxCollider;
@@ -195,12 +192,12 @@ public class VRButton : MonoBehaviour
 
     private void Update()
     {
-        // Smoothly animate scale and color
-        transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * animationSpeed);
+        // Smoothly animate scale and color using unscaledDeltaTime so buttons remain responsive when the game is paused
+        transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.unscaledDeltaTime * animationSpeed);
         
         if (backgroundImage != null)
         {
-            backgroundImage.color = Color.Lerp(backgroundImage.color, targetColor, Time.deltaTime * animationSpeed);
+            backgroundImage.color = Color.Lerp(backgroundImage.color, targetColor, Time.unscaledDeltaTime * animationSpeed);
         }
     }
 
@@ -246,7 +243,8 @@ public class VRButton : MonoBehaviour
         targetColor = clickColor;
         if (backgroundImage != null) backgroundImage.color = clickColor;
         
-        yield return new WaitForSeconds(0.12f);
+        // Use WaitForSecondsRealtime so clicking buttons fires even when Time.timeScale is 0
+        yield return new WaitForSecondsRealtime(0.12f);
         
         targetColor = isHovered ? hoverColor : normalColor;
         onClickEvent?.Invoke();

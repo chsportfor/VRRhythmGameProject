@@ -16,11 +16,11 @@ MonoBehaviour:
   bpm: 120
   audioOffset: 0
   musicClip: {fileID: 8300000, guid: b8cc89f6d1f7d1248b5f3086330ec617, type: 3}
-  rawCsvData: "# \uACE1 \uC774\uB984: untitled\r\n# BPM: 120\r\n# \uC624\uB514\uC624
-    \uC624\uD504\uC14B: 0\r\n4.25, 0, Punch, \r\n6.00, 2, Punch, \r\n7.75, 0, Punch,
-    \r\n9.50, 2, Punch, \r\n11.25, 0, Punch, \r\n13.00, 2, Punch, \r\n16.00, 1, Rotate,
-    -45\r\n17.00, 1, Rotate, 45\r\n17.75, 0, Punch, \r\n19.50, 2, Punch, \r\n21.25,
-    0, Punch, \r\n23.00, 2, Punch, \r\n24.75, 1, Hold, 2\r\n"
+  rawCsvData: "# \uACE1 \uC774\uB984: INFX - Firework (feat. NC.A)\r\n# BPM: 120\r\n#
+    \uC624\uB514\uC624 \uC624\uD504\uC14B: 0\r\n4.25, 0, Punch, \r\n6.00, 2, Punch,
+    \r\n7.75, 0, Punch, \r\n9.50, 2, Punch, \r\n11.25, 0, Punch, \r\n13.00, 2, Punch,
+    \r\n16.00, 1, Rotate, -45\r\n17.00, 1, Rotate, 45\r\n17.75, 0, Punch, \r\n19.50,
+    2, Punch, \r\n21.25, 0, Punch, \r\n23.00, 2, Punch, \r\n24.75, 1, Hold, 2\r\n"
   notes:
   - useBeat: 1
     beat: 4.25

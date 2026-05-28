@@ -6,10 +6,10 @@ public class JudgementText : MonoBehaviour
 {
     private static List<JudgementText> activeTexts = new List<JudgementText>();
 
-    public float destroyTime = 0.8f;
-    public float floatSpeed = 0.2f;
-    public float pushUpDistance = 0.35f;
-    public float lerpSpeed = 10f;
+    [SerializeField] private float destroyTime = 0.8f;
+    [SerializeField] private float floatSpeed = 0.2f;
+    [SerializeField] private float pushUpDistance = 0.35f;
+    [SerializeField] private float lerpSpeed = 10f;
 
     private TextMeshPro textMesh;
     private float targetY;

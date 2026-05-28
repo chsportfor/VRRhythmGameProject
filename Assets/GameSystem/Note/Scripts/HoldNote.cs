@@ -7,19 +7,19 @@ public class HoldNote : BaseNote
 
     [Header("Hold VFX (Auto-copied from PunchNote if null)")]
     public GameObject hitEffectPrefab;
-    public float hitEffectScale = 0.8f;
-    public float hitEffectLifetime = 1.2f;
+    [SerializeField] private float hitEffectScale = 0.8f;
+    [SerializeField] private float hitEffectLifetime = 1.2f;
 
     private bool isLeftHandIn = false;
     private bool isRightHandIn = false;
     private GameObject leftHandObj;
     private GameObject rightHandObj;
 
-    public float tickRate = 0.1f;
+    [SerializeField] private float tickRate = 0.1f;
     private float holdTimer = 0f;
 
     private int holdTickCount = 0;
-    public int requiredTicks = 5;
+    [HideInInspector] public int requiredTicks = 5;
 
     private Material energyMaterial;
 

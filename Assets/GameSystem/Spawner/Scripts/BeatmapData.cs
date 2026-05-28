@@ -128,12 +128,20 @@ public class BeatmapData : ScriptableObject
                             parsedOffset = tempOffset;
                         }
                     }
-                    else if (line.Contains("곡 이름:"))
+                    else if (line.Contains("곡 이름:") || line.Contains("곡이름:") || line.Contains("Song Name:") || line.Contains("SongName:"))
                     {
-                        string[] parts = line.Split(new[] { "곡 이름:" }, StringSplitOptions.None);
-                        if (parts.Length > 1)
+                        string[] keys = { "곡 이름:", "곡이름:", "Song Name:", "SongName:" };
+                        foreach (var key in keys)
                         {
-                            songName = parts[1].Trim();
+                            if (line.Contains(key))
+                            {
+                                string[] parts = line.Split(new[] { key }, StringSplitOptions.None);
+                                if (parts.Length > 1)
+                                {
+                                    songName = parts[1].Trim();
+                                    break;
+                                }
+                            }
                         }
                     }
                     continue;

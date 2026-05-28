@@ -3,16 +3,15 @@ using UnityEngine;
 
 public class PunchNote : BaseNote
 {
-    public float perfectRadius = 0.35f;
-    public float greatRadius = 0.7f;
-    public float goodRadius = 1.2f;
-    public JudgementText judgementText;
+    [SerializeField] private float perfectRadius = 0.35f;
+    [SerializeField] private float greatRadius = 0.7f;
+    [SerializeField] private float goodRadius = 1.2f;
 
     [Header("Effects")]
     public GameObject hitEffectPrefab;
-    public Vector3 hitEffectOffset = Vector3.zero;
-    public float hitEffectScale = 1f;
-    public float hitEffectLifetime = 2f;
+    [SerializeField] private Vector3 hitEffectOffset = Vector3.zero;
+    [SerializeField] private float hitEffectScale = 1f;
+    [SerializeField] private float hitEffectLifetime = 2f;
 
     private bool isJudged = false;
 

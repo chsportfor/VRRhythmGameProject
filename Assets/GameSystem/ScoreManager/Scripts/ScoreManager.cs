@@ -24,11 +24,7 @@ public class ScoreManager : MonoBehaviour
     public int MissCount => misses;
     public int JudgedNoteCount => judgedNotes;
 
-    // Lowercase aliases keep older scripts working without exposing runtime data in the Inspector.
-    public int currentScore => score;
-    public int currentCombo => combo;
-    public int missCount => misses;
-    public int judgedNoteCount => judgedNotes;
+
 
     public float Accuracy
     {

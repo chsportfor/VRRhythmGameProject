@@ -43,7 +43,7 @@ public class SongSelectUI : MonoBehaviour
         bgImg.color = new Color(0.04f, 0.06f, 0.14f, 0.85f);
 
         // 2. Create Title
-        CreateText("TitleText", "SELECT SONG", 48f, new Vector2(800f, 80f), new Vector2(0f, 270f), Color.white, backgroundPanel);
+        VRMenuHelper.CreateText("TitleText", "SELECT SONG", 48f, new Vector2(800f, 80f), new Vector2(0f, 270f), Color.white, backgroundPanel);
 
         // 3. Create Viewport (Masked scroll box) Y=20f, height=420f
         GameObject viewportObj = new GameObject("Viewport", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Mask));
@@ -68,7 +68,7 @@ public class SongSelectUI : MonoBehaviour
         contentTransform.anchoredPosition = Vector2.zero;
 
         // 5. Create Return Back Button Y = -270f
-        CreateButton("BackButton", "BACK TO MAIN", new Vector2(300f, 70f), new Vector2(0f, -270f), OnBackClicked, backgroundPanel);
+        VRMenuHelper.CreateButton("BackButton", "BACK TO MAIN", 24f, new Vector2(300f, 70f), new Vector2(0f, -270f), OnBackClicked, backgroundPanel);
     }
 
     public void RefreshList(List<BeatmapData> songs)
@@ -83,7 +83,7 @@ public class SongSelectUI : MonoBehaviour
         if (songs == null || songs.Count == 0)
         {
             // If no songs, show simple warning
-            GameObject warning = CreateText("NoSongsWarning", "NO SONGS AVAILABLE", 32f, new Vector2(700f, 60f), new Vector2(0f, -180f), Color.gray, contentTransform).gameObject;
+            GameObject warning = VRMenuHelper.CreateText("NoSongsWarning", "NO SONGS AVAILABLE", 32f, new Vector2(700f, 60f), new Vector2(0f, -180f), Color.gray, contentTransform).gameObject;
             activeItems.Add(warning);
             contentHeight = 200f;
             contentTransform.sizeDelta = new Vector2(800f, contentHeight);
@@ -116,6 +116,10 @@ public class SongSelectUI : MonoBehaviour
             // Add Song Title Text (Left Aligned)
             // Trim extension if present in songName
             string cleanSongName = song.songName;
+            if (string.IsNullOrEmpty(cleanSongName) || cleanSongName.ToLower() == "untitled")
+            {
+                cleanSongName = song.name; // Fallback to asset name if empty or untitled
+            }
             if (cleanSongName.EndsWith(".wav") || cleanSongName.EndsWith(".mp3"))
             {
                 cleanSongName = System.IO.Path.GetFileNameWithoutExtension(cleanSongName);
@@ -169,16 +173,8 @@ public class SongSelectUI : MonoBehaviour
             infoText.fontStyle = FontStyles.Normal;
             infoText.raycastTarget = false;
 
-            // Copy UIManager fonts
-            if (UIManager.Instance != null)
-            {
-                TextMeshProUGUI sourceText = UIManager.Instance.GetComponentInChildren<TextMeshProUGUI>(true);
-                if (sourceText != null)
-                {
-                    titleText.font = sourceText.font;
-                    infoText.font = sourceText.font;
-                }
-            }
+            VRMenuHelper.TryBindFont(titleText);
+            VRMenuHelper.TryBindFont(infoText);
 
             // Setup physics raycast collider bounds
             BoxCollider col = itemObj.GetComponent<BoxCollider>();
@@ -235,58 +231,6 @@ public class SongSelectUI : MonoBehaviour
         contentTransform.anchoredPosition = pos;
     }
 
-    private TextMeshProUGUI CreateText(string objName, string content, float fontSize, Vector2 size, Vector2 pos, Color color, Transform parent)
-    {
-        GameObject textObj = new GameObject(objName, typeof(RectTransform), typeof(TextMeshProUGUI));
-        textObj.transform.SetParent(parent, false);
-
-        RectTransform rect = textObj.GetComponent<RectTransform>();
-        rect.sizeDelta = size;
-        rect.anchoredPosition = pos;
-
-        TextMeshProUGUI text = textObj.GetComponent<TextMeshProUGUI>();
-        text.text = content;
-        text.fontSize = fontSize;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = color;
-        text.fontStyle = FontStyles.Bold;
-        text.raycastTarget = false;
-
-        if (UIManager.Instance != null)
-        {
-            TextMeshProUGUI sourceText = UIManager.Instance.GetComponentInChildren<TextMeshProUGUI>(true);
-            if (sourceText != null)
-            {
-                text.font = sourceText.font;
-            }
-        }
-
-        return text;
-    }
-
-    private GameObject CreateButton(string objName, string text, Vector2 size, Vector2 pos, System.Action onClick, Transform parent)
-    {
-        GameObject buttonObj = new GameObject(objName, typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(BoxCollider), typeof(VRButton));
-        buttonObj.transform.SetParent(parent, false);
-
-        RectTransform rect = buttonObj.GetComponent<RectTransform>();
-        rect.sizeDelta = size;
-        rect.anchoredPosition = pos;
-
-        UnityEngine.UI.Image img = buttonObj.GetComponent<UnityEngine.UI.Image>();
-        img.color = new Color(0.12f, 0.18f, 0.32f, 0.8f);
-
-        CreateText(objName + "_Text", text, 24f, size, Vector2.zero, Color.white, buttonObj.transform);
-
-        BoxCollider col = buttonObj.GetComponent<BoxCollider>();
-        col.size = new Vector3(size.x, size.y, 10f);
-        col.center = Vector3.zero;
-
-        VRButton vrBtn = buttonObj.GetComponent<VRButton>();
-        vrBtn.Setup(new Color(0.12f, 0.18f, 0.32f, 0.8f), new Color(0.18f, 0.42f, 0.95f, 0.95f), onClick);
-
-        return buttonObj;
-    }
 
     private void OnBackClicked()
     {

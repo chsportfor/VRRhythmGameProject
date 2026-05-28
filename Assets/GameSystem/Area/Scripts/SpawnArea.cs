@@ -1,7 +1,7 @@
 using UnityEngine;
 public class SpawnArea : MonoBehaviour
 {
-    public GameObject notePrefab;
+    [HideInInspector] public GameObject notePrefab;
     public Transform hitArea;
 
     public void SpawnNote()

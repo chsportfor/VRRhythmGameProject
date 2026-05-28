@@ -11,7 +11,7 @@ public class BeatmapCsvImporter : AssetPostprocessor
         foreach (string str in importedAssets)
         {
             // Assets/GameSystem/Spawner/Beatmaps/ 폴더 하위의 .csv 파일만 감지
-            if (str.Replace("\\", "/").StartsWith("Assets/GameSystem/Spawner/Beatmaps/") && str.EndsWith(".csv"))
+            if (str.Replace("\\", "/").StartsWith(GameConstants.BeatmapCsvFolder) && str.EndsWith(".csv"))
             {
                 ImportCsv(str);
             }
@@ -26,7 +26,7 @@ public class BeatmapCsvImporter : AssetPostprocessor
             string csvData = File.ReadAllText(csvPath);
 
             // ScriptableObject가 저장될 데이터 폴더
-            string dataFolder = "Assets/GameSystem/Spawner/Data";
+            string dataFolder = GameConstants.BeatmapDataFolder;
             if (!Directory.Exists(dataFolder))
             {
                 Directory.CreateDirectory(dataFolder);

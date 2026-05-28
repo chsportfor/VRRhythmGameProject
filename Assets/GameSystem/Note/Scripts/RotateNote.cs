@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class RotateNote : BaseNote
 {
-    public float targetAngle = 90f;
-    public float angleTolerance = 30f;
-    public float snapShiftAngle = 90f;
+    [HideInInspector] public float targetAngle = 90f;
+    [HideInInspector] public float snapShiftAngle = 90f;
 
     private bool isJudged = false;
 
@@ -95,21 +94,21 @@ public class RotateNote : BaseNote
     }
 
     [Header("Visuals")]
-    public float arcRadius = 1.0f; // 화살표가 그려질 원의 반지름
-    public int arcResolution = 20; // 90도 기준 곡선의 부드러움(점의 개수)
-    public float arrowThickness = 0.1f; // 화살표 선의 두께
+    [SerializeField] private float arcRadius = 1.0f; // 화살표가 그려질 원의 반지름
+    [SerializeField] private int arcResolution = 20; // 90도 기준 곡선의 부드러움(점의 개수)
+    [SerializeField] private float arrowThickness = 0.1f; // 화살표 선의 두께
     [Tooltip("화살표 시작 각도 (0: 우측/좌측, 90: 위쪽/아래쪽). 게임의 타격 라인에 맞춰 조절하세요.")]
-    public float baseStartAngle = 0f; 
+    [SerializeField] private float baseStartAngle = 0f; 
     
     [Tooltip("꼬리가 그려지는 최대 각도를 제한합니다. 45도 등 작은 각도에서 꼬리가 너무 길게 느껴질 때 유용합니다. (0이면 제한 없음)")]
-    public float maxDrawnAngle = 0f;
+    [SerializeField] private float maxDrawnAngle = 0f;
 
     [Header("Sprites")]
     [Tooltip("화살촉으로 사용할 2D 스프라이트 이미지를 넣어주세요 (오른쪽을 가리키는 흰색 이미지 권장)")]
     public Sprite arrowHeadSprite;
-    public float arrowheadSize = 0.5f; // 화살촉 이미지의 크기
+    [SerializeField] private float arrowheadSize = 0.5f; // 화살촉 이미지의 크기
     [Tooltip("화살촉의 중심점(Pivot)을 미세 조정합니다. (X는 앞뒤, Y는 상하 이동)")]
-    public Vector2 arrowheadOffset = Vector2.zero;
+    [SerializeField] private Vector2 arrowheadOffset = Vector2.zero;
 
     private LineRenderer[] arcRenderers = new LineRenderer[2];
     private SpriteRenderer[] headRenderers = new SpriteRenderer[2]; // 화살촉 전용 스프라이트 렌더러

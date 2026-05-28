@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEditor;
 
@@ -65,12 +66,12 @@ public class BeatmapDataEditor : Editor
         // musicClip이 지정되지 않은 상태라면, INFX - Firework 오디오 클립을 검색하여 자동 할당
         if (data.musicClip == null)
         {
-            string assetPath = "Assets/GameSystem/AudioReaction/SoundSource/02 INFX - Firework (feat. NC.A).wav";
+            string assetPath = GameConstants.DefaultAudioClipPath;
             AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
             
             if (clip == null)
             {
-                string[] guids = AssetDatabase.FindAssets("INFX - Firework");
+                string[] guids = AssetDatabase.FindAssets(GameConstants.DefaultAudioClipSearchQuery);
                 if (guids != null && guids.Length > 0)
                 {
                     string foundPath = AssetDatabase.GUIDToAssetPath(guids[0]);
@@ -105,29 +106,32 @@ public class BeatmapDataEditor : Editor
     {
         try
         {
-            string csv = $"# 곡 이름: {data.songName}\n";
-            csv += $"# BPM: {data.bpm}\n";
-            csv += $"# 오디오 오프셋: {data.audioOffset}\n";
-            csv += $"# 박자(Beat), 레인(LaneIndex), 종류(Type), [각도/지속시간]\n";
+            var sb = new StringBuilder();
+            sb.AppendLine($"# 곡 이름: {data.songName}");
+            sb.AppendLine($"# BPM: {data.bpm}");
+            sb.AppendLine($"# 오디오 오프셋: {data.audioOffset}");
+            sb.AppendLine($"# 박자(Beat), 레인(LaneIndex), 종류(Type), [각도/지속시간]");
 
             if (data.notes != null)
             {
                 foreach (var note in data.notes)
                 {
-                    if (note.type == NoteType.Punch)
+                    switch (note.type)
                     {
-                        csv += $"{note.beat:F2}, {note.laneIndex}, Punch\n";
-                    }
-                    else if (note.type == NoteType.Rotate)
-                    {
-                        csv += $"{note.beat:F2}, {note.laneIndex}, Rotate, {note.targetAngle:F0}\n";
-                    }
-                    else if (note.type == NoteType.Hold)
-                    {
-                        csv += $"{note.beat:F2}, {note.laneIndex}, Hold, {note.duration:F2}\n";
+                        case NoteType.Punch:
+                            sb.AppendLine($"{note.beat:F2}, {note.laneIndex}, Punch");
+                            break;
+                        case NoteType.Rotate:
+                            sb.AppendLine($"{note.beat:F2}, {note.laneIndex}, Rotate, {note.targetAngle:F0}");
+                            break;
+                        case NoteType.Hold:
+                            sb.AppendLine($"{note.beat:F2}, {note.laneIndex}, Hold, {note.duration:F2}");
+                            break;
                     }
                 }
             }
+
+            string csv = sb.ToString();
 
             data.rawCsvData = csv;
 

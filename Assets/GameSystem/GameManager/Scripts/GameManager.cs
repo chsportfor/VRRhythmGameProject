@@ -21,17 +21,19 @@ public class GameManager : MonoBehaviour
 
     [Header("Songs")]
     public List<BeatmapData> availableSongs = new List<BeatmapData>();
-    public BeatmapData selectedSong;
+    [HideInInspector] public BeatmapData selectedSong;
 
-    [Header("References")]
-    public NoteSpawner noteSpawner;
-    public UIManager uiManager;
-    public VRUIInteractor vrInteractor;
-    public MainMenuUI mainMenuUI;
-    public SongSelectUI songSelectUI;
+    [HideInInspector] public NoteSpawner noteSpawner;
+    [HideInInspector] public UIManager uiManager;
+    [HideInInspector] public VRUIInteractor vrInteractor;
+    [HideInInspector] public MainMenuUI mainMenuUI;
+    [HideInInspector] public SongSelectUI songSelectUI;
+    [HideInInspector] public PauseUI pauseUI;
 
-    [Header("Loading UI")]
-    public GameObject loadingPanel;
+    private bool isPaused = false;
+    private GameState targetStateAfterLoad = GameState.MainMenu;
+
+    [HideInInspector] public GameObject loadingPanel;
     private UnityEngine.UI.Image loadingBarFill;
     private TextMeshProUGUI loadingText;
 
@@ -89,24 +91,13 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        // Global Y button or Escape key to abort and return to menu when playing
+        // Left Controller Y Button (Button.Four) or Escape key to toggle pause when playing
         if (currentState == GameState.Playing)
         {
-            bool triggerReturn = false;
-
-            if (OVRInput.GetDown(OVRInput.Button.Four)) // Y button on left controller
+            if (OVRInput.GetDown(OVRInput.Button.Four) ||
+                (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame))
             {
-                triggerReturn = true;
-            }
-
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-            {
-                triggerReturn = true;
-            }
-
-            if (triggerReturn)
-            {
-                ReturnToMainMenu();
+                TogglePause();
             }
         }
     }
@@ -142,21 +133,7 @@ public class GameManager : MonoBehaviour
                 Vector3 hudPos = uiManager.transform.position;
                 Quaternion hudRot = uiManager.transform.rotation;
                 
-                if (mainMenuUI != null)
-                {
-                    mainMenuUI.transform.position = hudPos;
-                    mainMenuUI.transform.rotation = hudRot;
-                }
-                if (songSelectUI != null)
-                {
-                    songSelectUI.transform.position = hudPos;
-                    songSelectUI.transform.rotation = hudRot;
-                }
-                if (loadingPanel != null)
-                {
-                    loadingPanel.transform.position = hudPos;
-                    loadingPanel.transform.rotation = hudRot;
-                }
+                SetAllMenuTransforms(hudPos, hudRot);
             }
 
             ChangeState(GameState.Playing);
@@ -166,7 +143,7 @@ public class GameManager : MonoBehaviour
             // Position menus cleanly in front of the active VR camera rig
             PositionMenusInFrontOfCamera();
 
-            ChangeState(GameState.MainMenu);
+            ChangeState(targetStateAfterLoad);
         }
     }
 
@@ -292,6 +269,14 @@ public class GameManager : MonoBehaviour
         loadingBarFill.fillOrigin = (int)UnityEngine.UI.Image.OriginHorizontal.Left;
         loadingBarFill.fillAmount = 0f;
 
+        // Create Pause UI Canvas as GameManager child
+        GameObject pauseObj = new GameObject("PauseUI");
+        pauseObj.transform.position = menuPos;
+        pauseObj.transform.rotation = menuRot;
+        pauseUI = pauseObj.AddComponent<PauseUI>();
+        pauseObj.transform.SetParent(transform);
+        pauseUI.gameObject.SetActive(false); // Hide initially
+
         loadingPanel = loadingObj;
         loadingPanel.SetActive(false); // Hide initially
     }
@@ -320,20 +305,30 @@ public class GameManager : MonoBehaviour
             menuRot = Quaternion.identity;
         }
 
+        SetAllMenuTransforms(menuPos, menuRot);
+    }
+
+    private void SetAllMenuTransforms(Vector3 pos, Quaternion rot)
+    {
         if (mainMenuUI != null)
         {
-            mainMenuUI.transform.position = menuPos;
-            mainMenuUI.transform.rotation = menuRot;
+            mainMenuUI.transform.position = pos;
+            mainMenuUI.transform.rotation = rot;
         }
         if (songSelectUI != null)
         {
-            songSelectUI.transform.position = menuPos;
-            songSelectUI.transform.rotation = menuRot;
+            songSelectUI.transform.position = pos;
+            songSelectUI.transform.rotation = rot;
+        }
+        if (pauseUI != null)
+        {
+            pauseUI.transform.position = pos;
+            pauseUI.transform.rotation = rot;
         }
         if (loadingPanel != null)
         {
-            loadingPanel.transform.position = menuPos;
-            loadingPanel.transform.rotation = menuRot;
+            loadingPanel.transform.position = pos;
+            loadingPanel.transform.rotation = rot;
         }
     }
 
@@ -345,6 +340,7 @@ public class GameManager : MonoBehaviour
         // Handle UI toggles
         if (mainMenuUI != null) mainMenuUI.gameObject.SetActive(currentState == GameState.MainMenu);
         if (songSelectUI != null) songSelectUI.gameObject.SetActive(currentState == GameState.SongSelect);
+        if (pauseUI != null) pauseUI.gameObject.SetActive(false);
 
         if (uiManager != null)
         {
@@ -395,8 +391,97 @@ public class GameManager : MonoBehaviour
         ReturnToMainMenu();
     }
 
-    public void ReturnToMainMenu()
+    public void TogglePause()
     {
+        if (currentState != GameState.Playing) return;
+
+        isPaused = !isPaused;
+        Time.timeScale = isPaused ? 0f : 1f;
+
+        if (noteSpawner != null)
+        {
+            if (isPaused) noteSpawner.PauseGame();
+            else noteSpawner.ResumeGame();
+        }
+
+        if (pauseUI != null)
+        {
+            if (isPaused)
+            {
+                // Position Pause UI cleanly in front of the camera right when pausing
+                Transform cam = null;
+                if (Camera.main != null) cam = Camera.main.transform;
+                else
+                {
+                    OVRCameraRig rig = FindAnyObjectByType<OVRCameraRig>();
+                    if (rig != null) cam = rig.centerEyeAnchor;
+                }
+
+                if (cam != null)
+                {
+                    Vector3 forward = cam.forward;
+                    forward.y = 0f;
+                    forward.Normalize();
+                    
+                    // Position 3 meters in front, at eye level height
+                    Vector3 menuPos = cam.position + forward * 3.0f;
+                    menuPos.y = cam.position.y;
+                    if (menuPos.y < 0.5f) menuPos.y = 1.35f; // Safe minimum height
+
+                    pauseUI.transform.position = menuPos;
+                    pauseUI.transform.rotation = Quaternion.LookRotation(forward);
+                    
+                    Debug.Log($"[GameManager] Positioned Pause UI in front of camera at: {menuPos}");
+                }
+                else if (uiManager != null)
+                {
+                    // Fallback to track/HUD position
+                    pauseUI.transform.position = uiManager.transform.position;
+                    pauseUI.transform.rotation = uiManager.transform.rotation;
+                    Debug.Log("[GameManager] Positioned Pause UI at UIManager fallback position");
+                }
+            }
+            
+            pauseUI.gameObject.SetActive(isPaused);
+        }
+
+        if (vrInteractor != null)
+        {
+            // Activate ray pointer during pause, deactivate it when resuming
+            vrInteractor.SetPointerActive(isPaused);
+        }
+
+        Debug.Log($"[GameManager] Pause Toggled: {isPaused}");
+    }
+
+    public void ReturnToSongSelect()
+    {
+        // Resume time scale first
+        Time.timeScale = 1f;
+        isPaused = false;
+        if (pauseUI != null) pauseUI.gameObject.SetActive(false);
+
+        ReturnToMainMenu(GameState.SongSelect);
+    }
+
+    public void ReturnToMainMenuFromPause()
+    {
+        // Resume time scale first
+        Time.timeScale = 1f;
+        isPaused = false;
+        if (pauseUI != null) pauseUI.gameObject.SetActive(false);
+
+        ReturnToMainMenu(GameState.MainMenu);
+    }
+
+    public void ReturnToMainMenu(GameState targetState = GameState.MainMenu)
+    {
+        Time.timeScale = 1f; // Ensure time scale is resumed
+        isPaused = false;
+        if (pauseUI != null) pauseUI.gameObject.SetActive(false);
+
+        targetStateAfterLoad = targetState;
+
         if (noteSpawner != null)
         {
             noteSpawner.ResetGame();
@@ -408,11 +493,13 @@ public class GameManager : MonoBehaviour
         }
 
         // Load the MainMenu scene asynchronously with progress bar
-        StartCoroutine(LoadSceneAsyncRoutine("MainMenuScene"));
+        StartCoroutine(LoadSceneAsyncRoutine("MainMenuScene", targetState));
     }
 
-    private System.Collections.IEnumerator LoadSceneAsyncRoutine(string sceneName)
+    private System.Collections.IEnumerator LoadSceneAsyncRoutine(string sceneName, GameState postLoadState = GameState.MainMenu)
     {
+        targetStateAfterLoad = postLoadState;
+
         if (loadingPanel != null)
         {
             loadingPanel.SetActive(true);
@@ -429,8 +516,8 @@ public class GameManager : MonoBehaviour
             // asyncLoad.progress caps at 0.9. Map 0-0.9 to 0-100%
             float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f) * 100f;
             
-            // Smoothly Lerp the displayed progress bar
-            displayedProgress = Mathf.MoveTowards(displayedProgress, targetProgress, Time.deltaTime * 120f);
+            // Smoothly Lerp the displayed progress bar using unscaledDeltaTime to prevent freezing when Time.timeScale is 0
+            displayedProgress = Mathf.MoveTowards(displayedProgress, targetProgress, Time.unscaledDeltaTime * 120f);
             
             UpdateLoadingProgress(displayedProgress);
             yield return null;

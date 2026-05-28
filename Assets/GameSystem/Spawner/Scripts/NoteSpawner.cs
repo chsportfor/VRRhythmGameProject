@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 public class NoteSpawner : MonoBehaviour
 {
     [Header("Beatmap & Audio")]
-    public BeatmapData currentBeatmap;
-    public AudioSource audioSource;
+    [HideInInspector] public BeatmapData currentBeatmap;
+    [HideInInspector] public AudioSource audioSource;
 
     [Header("Note Prefabs")]
     public GameObject punchNotePrefab;
@@ -35,12 +35,32 @@ public class NoteSpawner : MonoBehaviour
 
     // ───────────────────────────── 초기화 ────────────────────────────
 
-    private void Awake()
+    private void EnsureAudioSource()
     {
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+    }
+
+    public static GameObject VFXContainer { get; private set; }
+
+    private void Awake()
+    {
+        EnsureAudioSource();
+        if (VFXContainer == null)
+        {
+            VFXContainer = new GameObject("VFXContainer");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (VFXContainer != null)
+        {
+            Destroy(VFXContainer);
+            VFXContainer = null;
+        }
     }
 
     void Start()
@@ -58,10 +78,7 @@ public class NoteSpawner : MonoBehaviour
 
     public void PrepareBeatmap(BeatmapData beatmap)
     {
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
+        EnsureAudioSource();
 
         currentBeatmap = beatmap;
 
@@ -81,11 +98,7 @@ public class NoteSpawner : MonoBehaviour
             Debug.LogWarning("[NoteSpawner] BeatmapData가 없습니다.");
             return;
         }
-        if (audioSource == null)
-        {
-            Debug.LogWarning("[NoteSpawner] AudioSource가 없습니다.");
-            return;
-        }
+        EnsureAudioSource();
 
         // 채보 노트가 정렬되어 있는지 보장
         if (sortedNotes == null)
@@ -99,7 +112,7 @@ public class NoteSpawner : MonoBehaviour
         else if (audioSource.clip == null)
         {
 #if UNITY_EDITOR
-            string defaultPath = "Assets/GameSystem/AudioReaction/SoundSource/02 INFX - Firework (feat. NC.A).wav";
+            string defaultPath = GameConstants.DefaultAudioClipPath;
             AudioClip defaultClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(defaultPath);
             if (defaultClip != null)
             {
@@ -113,7 +126,7 @@ public class NoteSpawner : MonoBehaviour
         audioSource.Stop();
 
         // ─── 햅틱/진동 시스템의 AudioSource 바인딩 동적 연결 ───
-        AudioReactionSystems[] reactions = FindObjectsByType<AudioReactionSystems>(FindObjectsSortMode.None);
+        AudioReactionSystems[] reactions = FindObjectsByType<AudioReactionSystems>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var reaction in reactions)
         {
             if (reaction != null)
@@ -141,9 +154,77 @@ public class NoteSpawner : MonoBehaviour
         Debug.Log($"[NoteSpawner] 시작! {musicStartDelay}초 후 음악 재생. 비트맵 싱크 시작.");
     }
 
+    private double pauseStartTime;
+    private bool isPaused = false;
+    private List<GameObject> pausedNotes = new List<GameObject>();
+
+    public void PauseGame()
+    {
+        if (!isPlaying || isPaused) return;
+
+        isPaused = true;
+        pauseStartTime = AudioSettings.dspTime;
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Pause();
+        }
+
+        // Hide all active notes to avoid visual clutter and focus on the Pause UI
+        pausedNotes.Clear();
+        BaseNote[] activeNotes = FindObjectsByType<BaseNote>(FindObjectsSortMode.None);
+        foreach (BaseNote note in activeNotes)
+        {
+            if (note != null && note.gameObject.activeSelf)
+            {
+                note.gameObject.SetActive(false);
+                pausedNotes.Add(note.gameObject);
+            }
+        }
+
+        // Hide all active feedback/hit particle effects
+        if (VFXContainer != null)
+        {
+            VFXContainer.SetActive(false);
+        }
+
+        Debug.Log($"[NoteSpawner] Game Paused at DSP Time: {pauseStartTime}. Hid {pausedNotes.Count} active notes and VFX.");
+    }
+
+    public void ResumeGame()
+    {
+        if (!isPlaying || !isPaused) return;
+
+        isPaused = false;
+        double pauseDuration = AudioSettings.dspTime - pauseStartTime;
+        dspStartTime += pauseDuration;
+
+        // Restore all previously hidden notes
+        foreach (GameObject noteObj in pausedNotes)
+        {
+            if (noteObj != null)
+            {
+                noteObj.SetActive(true);
+            }
+        }
+        pausedNotes.Clear();
+
+        // Restore particle effects
+        if (VFXContainer != null)
+        {
+            VFXContainer.SetActive(true);
+        }
+
+        if (audioSource != null)
+        {
+            audioSource.UnPause();
+        }
+        Debug.Log($"[NoteSpawner] Game Resumed. Paused Duration: {pauseDuration:F4}s. New dspStartTime: {dspStartTime}. Restored notes and VFX.");
+    }
+
     public void ResetGame()
     {
         isPlaying = false;
+        isPaused = false;
         nextNoteIndex = 0;
 
         if (audioSource != null)
@@ -151,8 +232,31 @@ public class NoteSpawner : MonoBehaviour
             audioSource.Stop();
         }
 
-        // Destroy all spawned note objects in the scene
-        BaseNote[] activeNotes = FindObjectsByType<BaseNote>(FindObjectsSortMode.None);
+        // Clean up and destroy all temporary VFX in the container
+        if (VFXContainer != null)
+        {
+            foreach (Transform child in VFXContainer.transform)
+            {
+                if (child != null && child.gameObject != null)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+            VFXContainer.SetActive(true);
+        }
+
+        // Destroy deactivated paused notes first to prevent memory leaks
+        foreach (GameObject noteObj in pausedNotes)
+        {
+            if (noteObj != null)
+            {
+                Destroy(noteObj);
+            }
+        }
+        pausedNotes.Clear();
+
+        // Destroy all spawned note objects (both active and inactive) in the scene
+        BaseNote[] activeNotes = FindObjectsByType<BaseNote>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (BaseNote note in activeNotes)
         {
             if (note != null && note.gameObject != null)
@@ -166,6 +270,8 @@ public class NoteSpawner : MonoBehaviour
 
     void Update()
     {
+        if (isPaused) return;
+
         if (!isPlaying)
         {
             // Only allow starting if in the Playing state
@@ -176,7 +282,7 @@ public class NoteSpawner : MonoBehaviour
             if (OVRInput.GetDown(OVRInput.Button.One))
                 StartGame();
 
-            if (Keyboard.current != null && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.nKey.wasPressedThisFrame))
+            if (Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame)
                 StartGame();
 
             return;
@@ -345,12 +451,12 @@ public class NoteSpawner : MonoBehaviour
     {
         if (audioSource == null || audioSource.clip != null) return;
 
-        string path = "Assets/GameSystem/AudioReaction/SoundSource/02 INFX - Firework (feat. NC.A).wav";
+        string path = GameConstants.DefaultAudioClipPath;
         AudioClip clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(path);
 
         if (clip == null)
         {
-            string[] guids = UnityEditor.AssetDatabase.FindAssets("INFX - Firework t:AudioClip");
+            string[] guids = UnityEditor.AssetDatabase.FindAssets(GameConstants.DefaultAudioClipSearchQuery + " t:AudioClip");
             if (guids != null && guids.Length > 0)
                 clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(
                     UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]));

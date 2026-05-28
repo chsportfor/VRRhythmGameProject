@@ -1,9 +1,7 @@
 using UnityEngine;
 public class BaseNote : MonoBehaviour
 {
-    public float speed = 10f;
-    public GameObject JudgementTextPrefab;
-    public Vector3 judgementOffset = new Vector3(0f, 0f, 5f);
+    [HideInInspector] public float speed = 10f;
 
     protected Transform target;
     protected bool isMoving = false;
@@ -89,6 +87,13 @@ public class BaseNote : MonoBehaviour
         }
 
         GameObject effect = Instantiate(effectPrefab, position, Quaternion.identity);
+        
+        // Parent to the global VFX container in NoteSpawner for collective pausing/visibility toggling
+        if (NoteSpawner.VFXContainer != null)
+        {
+            effect.transform.SetParent(NoteSpawner.VFXContainer.transform, true);
+        }
+
         if (Camera.main != null)
         {
             effect.transform.LookAt(Camera.main.transform);

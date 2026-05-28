@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class TrackManager : MonoBehaviour
 {
-    public static TrackManager Instance;
+    public static TrackManager Instance { get; private set; }
 
     public Transform[] spawners;
     public Transform[] hitZones;

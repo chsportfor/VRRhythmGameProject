@@ -1746,12 +1746,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1073801635679292165, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
       propertyPath: Mute
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1073801635679292165, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
       propertyPath: m_Resource
       value: 
       objectReference: {fileID: 8300000, guid: 5762d15e8c32a404c8e939481dc13c61, type: 3}
+    - target: {fileID: 1073801635679292165, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1073801635679292165, guid: 45f9cc51d16d7f1488a31c597762eb8b, type: 3}
       propertyPath: OutputAudioMixerGroup
       value: 
@@ -1858,6 +1862,10 @@ MonoBehaviour:
   forearmIntensityMultiplier: 3
   forearmThreshold: 0.05
   forearmDurationMs: 40
+  gradientMinRatio: 0.3
+  enableOnsetBurst: 1
+  onsetDurationBoostMs: 40
+  onsetIntensityMultiplier: 1.5
   updateInterval: 0.03
 --- !u!1001 &3784667809599722725
 PrefabInstance:
