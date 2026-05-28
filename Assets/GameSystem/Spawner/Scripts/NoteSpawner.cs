@@ -35,6 +35,14 @@ public class NoteSpawner : MonoBehaviour
 
     // ───────────────────────────── 초기화 ────────────────────────────
 
+    private void Awake()
+    {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+    }
+
     void Start()
     {
         // 씬 시작 시 자동 재생 완벽 차단
@@ -50,6 +58,11 @@ public class NoteSpawner : MonoBehaviour
 
     public void PrepareBeatmap(BeatmapData beatmap)
     {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
         currentBeatmap = beatmap;
 
         // rawCsvData에 CSV가 있지만 notes 리스트가 비어있으면 자동 파싱
@@ -80,10 +93,35 @@ public class NoteSpawner : MonoBehaviour
 
         // 음악 클립 교체 (BeatmapData에 musicClip이 있으면)
         if (currentBeatmap.musicClip != null)
+        {
             audioSource.clip = currentBeatmap.musicClip;
+        }
+        else if (audioSource.clip == null)
+        {
+#if UNITY_EDITOR
+            string defaultPath = "Assets/GameSystem/AudioReaction/SoundSource/02 INFX - Firework (feat. NC.A).wav";
+            AudioClip defaultClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(defaultPath);
+            if (defaultClip != null)
+            {
+                audioSource.clip = defaultClip;
+                Debug.Log($"[NoteSpawner] Beatmap에 Clip이 없어 기본 백업 음원을 로드했습니다: {defaultClip.name}");
+            }
+#endif
+        }
 
         audioSource.playOnAwake = false;
         audioSource.Stop();
+
+        // ─── 햅틱/진동 시스템의 AudioSource 바인딩 동적 연결 ───
+        AudioReactionSystems[] reactions = FindObjectsByType<AudioReactionSystems>(FindObjectsSortMode.None);
+        foreach (var reaction in reactions)
+        {
+            if (reaction != null)
+            {
+                reaction.audioSource = audioSource;
+                Debug.Log($"[NoteSpawner] AudioReactionSystems({reaction.name})의 AudioSource를 {audioSource.name}으로 연결했습니다.");
+            }
+        }
 
         // ─── 핵심: PlayScheduled로 정확히 musicStartDelay 초 후에 재생 ───
         // dspTime은 오디오 하드웨어 기준의 절대 시간이므로 프레임 드랍 영향을 받지 않습니다.
@@ -138,7 +176,7 @@ public class NoteSpawner : MonoBehaviour
             if (OVRInput.GetDown(OVRInput.Button.One))
                 StartGame();
 
-            if (Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame)
+            if (Keyboard.current != null && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.nKey.wasPressedThisFrame))
                 StartGame();
 
             return;

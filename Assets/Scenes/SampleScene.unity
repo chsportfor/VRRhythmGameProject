@@ -943,6 +943,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1441949093026986906, guid: 2129561fd5ef2284086f81f4eb432d8f, type: 3}
+      propertyPath: autoRunBhapticsPlayer
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1848,10 +1852,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BhapticsAudioHaptic
   audioReaction: {fileID: 0}
   enableBhaptics: 1
-  vestIntensityMultiplier: 1.5
+  vestIntensityMultiplier: 0.05
   vestThreshold: 0.05
   vestDurationMs: 50
-  forearmIntensityMultiplier: 2
+  forearmIntensityMultiplier: 3
   forearmThreshold: 0.05
   forearmDurationMs: 40
   updateInterval: 0.03

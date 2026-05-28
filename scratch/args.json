@@ -1,0 +1,14 @@
+{
+  "gameObjectRef": {
+    "instanceID": 101492
+  },
+  "componentRef": {
+    "instanceID": 101490,
+    "index": 1
+  },
+  "paths": [
+    "volume",
+    "mute",
+    "spatialBlend"
+  ]
+}

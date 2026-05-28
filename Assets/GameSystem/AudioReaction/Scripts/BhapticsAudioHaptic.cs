@@ -1,15 +1,18 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // Added for flat-screen keyboard shortcut
 using Bhaptics.SDK2;
 
 /// <summary>
 /// AudioReactionSystems의 주파수 분석 결과를 bHaptics Suit에 매핑합니다.
-/// - Vest (상체, 40모터): 저음역 (FinalBass)
-/// - ForearmL / ForearmR (팔, 각 3모터): 고음역 (FinalTreble)
+/// - Vest (상체, 40모터):
+///   - 저음역 (FinalBass) -> 앞면 모터 (0~19)
+///   - 고음역 (FinalTreble) -> 뒷면 모터 (20~39)
 /// 
 /// 사용법:
 /// 1. 씬에 [bhaptics] 프리팹이 있어야 합니다 (SDK 초기화용).
 /// 2. 이 컴포넌트를 AudioReactionSystems와 같은 GameObject에 붙이거나,
 ///    Inspector에서 audioReaction 필드에 참조를 연결하세요.
+/// 3. VR 없이 모니터로 테스트할 때는 에디터에서 플레이 중 'N' 키를 누르면 INFX 노래가 재생됩니다.
 /// </summary>
 public class BhapticsAudioHaptic : MonoBehaviour
 {
@@ -21,10 +24,10 @@ public class BhapticsAudioHaptic : MonoBehaviour
     [Tooltip("bHaptics 햅틱 출력을 활성화/비활성화합니다.")]
     public bool enableBhaptics = true;
 
-    [Header("Vest (상체) — 저음역 매핑")]
+    [Header("Vest (상체) — 저음역 매핑 (앞면)")]
     [Tooltip("Vest 모터 강도 배율. 저음이 약하면 올리세요.")]
-    [Range(0.1f, 3.0f)]
-    public float vestIntensityMultiplier = 1.5f;
+    [Range(0f, 5.0f)]
+    public float vestIntensityMultiplier = 0.05f;
 
     [Tooltip("이 값 이하의 저음은 무시합니다 (노이즈 컷).")]
     [Range(0f, 0.3f)]
@@ -34,18 +37,18 @@ public class BhapticsAudioHaptic : MonoBehaviour
     [Range(20, 200)]
     public int vestDurationMs = 50;
 
-    [Header("Forearm (팔) — 고음역 매핑")]
-    [Tooltip("Forearm 모터 강도 배율. 고음이 약하면 올리세요.")]
-    [Range(0.1f, 3.0f)]
-    public float forearmIntensityMultiplier = 2.0f;
+    [Header("Vest (상체) — 고음역 매핑 (뒷면)")]
+    [Tooltip("등쪽(고음) 모터 강도 배율. 고음이 약하면 올리세요.")]
+    [Range(0f, 5.0f)]
+    public float forearmIntensityMultiplier = 3.0f; // 변수 이름은 인스펙터 직렬화 호환을 위해 유지
 
     [Tooltip("이 값 이하의 고음은 무시합니다 (노이즈 컷).")]
     [Range(0f, 0.3f)]
-    public float forearmThreshold = 0.05f;
+    public float forearmThreshold = 0.05f; // 변수 이름 유지
 
-    [Tooltip("Forearm 진동 지속시간 (ms).")]
+    [Tooltip("등쪽(고음) 진동 지속시간 (ms).")]
     [Range(20, 200)]
-    public int forearmDurationMs = 40;
+    public int forearmDurationMs = 40; // 변수 이름 유지
 
     [Header("업데이트 주기")]
     [Tooltip("햅틱 전송 간격 (초). 너무 짧으면 bHaptics 부하, 너무 길면 반응 느림.")]
@@ -57,10 +60,6 @@ public class BhapticsAudioHaptic : MonoBehaviour
 
     // Vest: 앞면 20 + 뒷면 20 = 40 모터 (TactSuit X40 스펙 반영)
     private int[] vestMotors = new int[40];
-
-    // Forearm: 각 3 모터
-    private int[] forearmLMotors = new int[3];
-    private int[] forearmRMotors = new int[3];
 
     void Start()
     {
@@ -97,64 +96,47 @@ public class BhapticsAudioHaptic : MonoBehaviour
         float bass = audioReaction.FinalBass;
         float treble = audioReaction.FinalTreble;
 
-        // ── Vest (상체): 저음역 ──
-        if (bass > vestThreshold)
-        {
-            int intensity = Mathf.Clamp((int)(bass * vestIntensityMultiplier * 100f), 1, 100);
-            ApplyVestHaptic(intensity);
-        }
-
-        // ── Forearm (양팔): 고음역 ──
-        if (treble > forearmThreshold)
-        {
-            int intensity = Mathf.Clamp((int)(treble * forearmIntensityMultiplier * 100f), 1, 100);
-            ApplyForearmHaptic(intensity);
-        }
-    }
-
-    /// <summary>
-    /// Vest 전체에 균일한 저음 진동을 적용합니다.
-    /// 추후 모터별 패턴 분배로 확장 가능합니다.
-    /// </summary>
-    private void ApplyVestHaptic(int intensity)
-    {
-        // 전체 32모터에 동일 강도 적용 (기본 전략)
-        // 추후 상/하반신 분리, 파동 패턴 등으로 고도화 가능
+        // vestMotors 배열 초기화 (0으로 리셋)
         for (int i = 0; i < vestMotors.Length; i++)
         {
-            vestMotors[i] = intensity;
+            vestMotors[i] = 0;
         }
 
-        BhapticsLibrary.PlayMotors(
-            (int)PositionType.Vest,
-            vestMotors,
-            vestDurationMs
-        );
-    }
+        bool hasHaptic = false;
 
-    /// <summary>
-    /// 양쪽 팔에 고음 진동을 적용합니다.
-    /// </summary>
-    private void ApplyForearmHaptic(int intensity)
-    {
-        for (int i = 0; i < forearmLMotors.Length; i++)
+        // ── 앞면 (0 ~ 19): 저음역대 (Bass) ──
+        if (bass > vestThreshold)
         {
-            forearmLMotors[i] = intensity;
-            forearmRMotors[i] = intensity;
+            int bassIntensity = Mathf.Clamp((int)(bass * vestIntensityMultiplier * 100f), 1, 100);
+            for (int i = 0; i < 20; i++)
+            {
+                vestMotors[i] = bassIntensity;
+            }
+            hasHaptic = true;
         }
 
-        BhapticsLibrary.PlayMotors(
-            (int)PositionType.ForearmL,
-            forearmLMotors,
-            forearmDurationMs
-        );
+        // ── 뒷면 (20 ~ 39): 고음역대 (Treble) ──
+        if (treble > forearmThreshold)
+        {
+            int trebleIntensity = Mathf.Clamp((int)(treble * forearmIntensityMultiplier * 100f), 1, 100);
+            for (int i = 20; i < 40; i++)
+            {
+                vestMotors[i] = trebleIntensity;
+            }
+            hasHaptic = true;
+        }
 
-        BhapticsLibrary.PlayMotors(
-            (int)PositionType.ForearmR,
-            forearmRMotors,
-            forearmDurationMs
-        );
+        if (hasHaptic)
+        {
+            BhapticsLibrary.PlayMotors(
+                (int)PositionType.Vest,
+                vestMotors,
+                Mathf.Max(vestDurationMs, forearmDurationMs)
+            );
+        }
     }
+
+
 
     void OnDisable()
     {
