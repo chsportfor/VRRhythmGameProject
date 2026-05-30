@@ -1981,7 +1981,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8719534556781003399, guid: 97a03e2de3d2ca847b50922ab2151d9f, type: 3}
       propertyPath: laneWidth
-      value: 0.45
+      value: 0.32
       objectReference: {fileID: 0}
     - target: {fileID: 8719534556781003399, guid: 97a03e2de3d2ca847b50922ab2151d9f, type: 3}
       propertyPath: leftController

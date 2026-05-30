@@ -36,7 +36,7 @@ public class NoteData
     public float targetAngle;
 
     [Header("Hold Note 전용")]
-    [Tooltip("얼마나 오랫동안 양손을 유지해야 하는지 (초 단위)")]
+    [Tooltip("Hold 지속 길이 (박/Beat 단위). CSV 네 번째 값과 동일합니다.")]
     public float duration;
 }
 

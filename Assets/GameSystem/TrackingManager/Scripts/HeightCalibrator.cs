@@ -33,6 +33,13 @@ public class HeightCalibrator : MonoBehaviour
             return;
         }
 
+        // 🚀 수동 캘리브레이션 버튼을 누르는 순간! 높이 보정과 함께 수평 좌표(XZ) 및 시선 정면 회전(Y)도 내 위치 정면에 맞춤 자동 재정렬!
+        TrackManager trackManager = GetTargetTrackManager();
+        if (trackManager != null)
+        {
+            trackManager.AlignTrackToPlayer();
+        }
+
         float targetHeight = centerEyeAnchor.position.y + heightOffset;
 
         if (calibrationCoroutine != null)

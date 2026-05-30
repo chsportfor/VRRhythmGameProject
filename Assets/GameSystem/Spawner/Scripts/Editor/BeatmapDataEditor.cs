@@ -110,7 +110,7 @@ public class BeatmapDataEditor : Editor
             sb.AppendLine($"# 곡 이름: {data.songName}");
             sb.AppendLine($"# BPM: {data.bpm}");
             sb.AppendLine($"# 오디오 오프셋: {data.audioOffset}");
-            sb.AppendLine($"# 박자(Beat), 레인(LaneIndex), 종류(Type), [각도/지속시간]");
+            sb.AppendLine($"# 박자(Beat), 레인(LaneIndex), 종류(Type), [Rotate:각도 / Hold:지속박수]");
 
             if (data.notes != null)
             {

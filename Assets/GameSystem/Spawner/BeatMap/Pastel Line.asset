@@ -1,0 +1,1134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36946d47e136f4d4fb6a0788691d68da, type: 3}
+  m_Name: Pastel Line
+  m_EditorClassIdentifier: Assembly-CSharp::BeatmapData
+  songName: Reku Mochizuki - Pastel Lines
+  bpm: 150
+  audioOffset: 0.12
+  musicClip: {fileID: 8300000, guid: 98096ab066b0ade4ab1cdfd3333a0299, type: 3}
+  rawCsvData: "# \uACE1 \uC774\uB984:  Reku Mochizuki - Pastel Lines\r\n# BPM: 150\r\n#
+    \uC624\uB514\uC624 \uC624\uD504\uC14B: 0.12\r\n# Hold \uB124 \uBC88\uC9F8 \uAC12:
+    \uC9C0\uC18D \uBC15\uC218(Beat)\r\n5.00, 0, Punch, \r\n7.00, 2, Punch, \r\n9.00,
+    0, Punch, \r\n11.00, 2, Punch, \r\n13.00, 0, Punch, \r\n15.00, 2, Punch, \r\n17.00,
+    0, Punch, \r\n19.00, 2, Punch, \r\n21.00, 0, Punch, \r\n23.00, 2, Punch, \r\n25.00,
+    0, Punch, \r\n27.00, 2, Punch, \r\n29.00, 0, Punch, \r\n31.00, 2, Punch, \r\n33.00,
+    1, Hold, 2\r\n37.00, 0, Punch, \r\n39.00, 0, Punch, \r\n41.00, 1, Hold, 2\r\n45.00,
+    2, Punch, \r\n47.00, 2, Punch, \r\n49.00, 1, Hold, 2\r\n53.00, 0, Punch, \r\n54.00,
+    0, Punch, \r\n55.00, 2, Punch, \r\n56.00, 2, Punch, \r\n57.00, 0, Punch, \r\n57.50,
+    2, Punch, \r\n58.00, 0, Punch, \r\n58.50, 2, Punch, \r\n59.00, 0, Punch, \r\n59.50,
+    2, Punch, \r\n60.00, 0, Punch, \r\n60.50, 2, Punch, \r\n61.00, 1, Hold, 5\r\n67.00,
+    0, Punch, \r\n67.00, 2, Punch, \r\n68.00, 0, Punch, \r\n68.00, 2, Punch, \r\n69.00,
+    1, Rotate, 90\r\n75.00, 0, Punch, \r\n75.00, 2, Punch, \r\n77.00, 1, Rotate,
+    -90\r\n81.00, 2, Punch, \r\n81.00, 0, Punch, \r\n85.00, 0, Punch, \r\n86.50,
+    2, Punch, \r\n87.75, 0, Punch, \r\n88.00, 2, Punch, \r\n91.50, 0, Punch, \r\n92.00,
+    0, Punch, \r\n93.00, 0, Punch, \r\n93.00, 2, Punch, \r\n95.00, 1, Rotate, 45\r\n96.50,
+    1, Rotate, -45\r\n101.00, 0, Punch, \r\n103.00, 0, Punch, \r\n105.00, 0, Punch,
+    \r\n107.00, 1, Rotate, 90\r\n109.00, 2, Punch, \r\n111.00, 2, Punch, \r\n113.00,
+    2, Punch, \r\n115.00, 1, Rotate, -90\r\n117.00, 0, Punch, \r\n118.00, 2, Punch,
+    \r\n119.00, 0, Punch, \r\n120.00, 1, Rotate, 45\r\n121.00, 2, Punch, \r\n122.00,
+    0, Punch, \r\n123.00, 2, Punch, \r\n124.00, 1, Rotate, -90\r\n125.50, 0, Punch,
+    \r\n126.00, 2, Punch, \r\n126.50, 0, Punch, \r\n127.00, 2, Punch, \r\n127.50,
+    1, Hold, 2.5\r\n132.00, 1, Rotate, 45\r\n133.00, 2, Punch, \r\n135.00, 2, Punch,
+    \r\n137.00, 0, Punch, \r\n139.00, 0, Punch, \r\n141.00, 2, Punch, \r\n143.00,
+    2, Punch, \r\n145.00, 0, Punch, \r\n147.00, 0, Punch, \r\n149.00, 2, Punch, \r\n151.00,
+    0, Punch, \r\n153.00, 2, Punch, \r\n155.00, 0, Punch, \r\n157.00, 2, Punch, \r\n159.00,
+    0, Punch, \r\n161.00, 2, Punch, \r\n163.00, 0, Punch, \r\n163.00, 2, Punch, \r\n164.00,
+    0, Punch, \r\n164.00, 2, Punch, \r\n165.00, 1, Rotate, -45\r\n167.00, 0, Punch,
+    \r\n169.00, 0, Punch, \r\n171.00, 0, Punch, \r\n173.00, 1, Rotate, 90\r\n175.00,
+    2, Punch, \r\n177.00, 2, Punch, \r\n179.00, 2, Punch, \r\n181.00, 1, Rotate,
+    -45\r\n183.00, 0, Punch, \r\n185.00, 0, Punch, \r\n187.00, 0, Punch, \r\n189.00,
+    2, Punch, \r\n190.00, 0, Punch, \r\n191.00, 2, Punch, \r\n192.00, 0, Punch, \r\n193.00,
+    1, Hold, 4\r\n199.00, 0, Punch, \r\n201.00, 0, Punch, \r\n203.00, 0, Punch, \r\n205.00,
+    2, Punch, \r\n207.00, 2, Punch, \r\n209.00, 2, Punch, \r\n211.00, 0, Punch, \r\n213.00,
+    2, Punch, \r\n215.00, 0, Punch, \r\n217.00, 0, Punch, \r\n219.00, 2, Punch, \r\n221.00,
+    2, Punch, \r\n223.00, 0, Punch, \r\n225.00, 2, Punch, \r\n227.00, 0, Punch, \r\n229.00,
+    0, Punch, \r\n230.00, 0, Punch, \r\n231.00, 0, Punch, \r\n232.00, 1, Rotate,
+    90\r\n233.00, 2, Punch, \r\n234.00, 2, Punch, \r\n235.00, 2, Punch, \r\n236.00,
+    1, Rotate, -45\r\n237.00, 2, Punch, \r\n238.00, 0, Punch, \r\n239.00, 2, Punch,
+    \r\n240.00, 1, Rotate, -45\r\n241.00, 0, Punch, \r\n241.50, 2, Punch, \r\n242.00,
+    0, Punch, \r\n245.00, 0, Punch, \r\n247.00, 0, Punch, \r\n249.00, 0, Punch, \r\n251.00,
+    2, Punch, \r\n253.00, 2, Punch, \r\n255.00, 2, Punch, \r\n257.00, 0, Punch, \r\n258.00,
+    2, Punch, \r\n259.00, 0, Punch, \r\n260.00, 2, Punch, \r\n261.00, 1, Rotate,
+    45\r\n"
+  notes:
+  - useBeat: 1
+    beat: 5
+    time: 2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 7
+    time: 2.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 9
+    time: 3.6000001
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 11
+    time: 4.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 13
+    time: 5.2000003
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 15
+    time: 6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 17
+    time: 6.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 19
+    time: 7.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 21
+    time: 8.400001
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 23
+    time: 9.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 25
+    time: 10
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 27
+    time: 10.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 29
+    time: 11.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 31
+    time: 12.400001
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 33
+    time: 13.2
+    laneIndex: 1
+    type: 2
+    targetAngle: 0
+    duration: 2
+  - useBeat: 1
+    beat: 37
+    time: 14.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 39
+    time: 15.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 41
+    time: 16.4
+    laneIndex: 1
+    type: 2
+    targetAngle: 0
+    duration: 2
+  - useBeat: 1
+    beat: 45
+    time: 18
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 47
+    time: 18.800001
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 49
+    time: 19.6
+    laneIndex: 1
+    type: 2
+    targetAngle: 0
+    duration: 2
+  - useBeat: 1
+    beat: 53
+    time: 21.2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 54
+    time: 21.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 55
+    time: 22
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 56
+    time: 22.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 57
+    time: 22.800001
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 57.5
+    time: 23
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 58
+    time: 23.2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 58.5
+    time: 23.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 59
+    time: 23.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 59.5
+    time: 23.800001
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 60
+    time: 24
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 60.5
+    time: 24.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 61
+    time: 24.4
+    laneIndex: 1
+    type: 2
+    targetAngle: 0
+    duration: 5
+  - useBeat: 1
+    beat: 67
+    time: 26.800001
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 67
+    time: 26.800001
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 68
+    time: 27.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 68
+    time: 27.2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 69
+    time: 27.6
+    laneIndex: 1
+    type: 1
+    targetAngle: 90
+    duration: 0
+  - useBeat: 1
+    beat: 75
+    time: 30
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 75
+    time: 30
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 77
+    time: 30.800001
+    laneIndex: 1
+    type: 1
+    targetAngle: -90
+    duration: 0
+  - useBeat: 1
+    beat: 81
+    time: 32.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 81
+    time: 32.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 85
+    time: 34
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 86.5
+    time: 34.600002
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 87.75
+    time: 35.100002
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 88
+    time: 35.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 91.5
+    time: 36.600002
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 92
+    time: 36.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 93
+    time: 37.2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 93
+    time: 37.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 95
+    time: 38
+    laneIndex: 1
+    type: 1
+    targetAngle: 45
+    duration: 0
+  - useBeat: 1
+    beat: 96.5
+    time: 38.600002
+    laneIndex: 1
+    type: 1
+    targetAngle: -45
+    duration: 0
+  - useBeat: 1
+    beat: 101
+    time: 40.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 103
+    time: 41.2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 105
+    time: 42
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 107
+    time: 42.8
+    laneIndex: 1
+    type: 1
+    targetAngle: 90
+    duration: 0
+  - useBeat: 1
+    beat: 109
+    time: 43.600002
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 111
+    time: 44.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 113
+    time: 45.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 115
+    time: 46
+    laneIndex: 1
+    type: 1
+    targetAngle: -90
+    duration: 0
+  - useBeat: 1
+    beat: 117
+    time: 46.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 118
+    time: 47.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 119
+    time: 47.600002
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 120
+    time: 48
+    laneIndex: 1
+    type: 1
+    targetAngle: 45
+    duration: 0
+  - useBeat: 1
+    beat: 121
+    time: 48.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 122
+    time: 48.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 123
+    time: 49.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 124
+    time: 49.600002
+    laneIndex: 1
+    type: 1
+    targetAngle: -90
+    duration: 0
+  - useBeat: 1
+    beat: 125.5
+    time: 50.2
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 126
+    time: 50.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 126.5
+    time: 50.600002
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 127
+    time: 50.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 127.5
+    time: 51
+    laneIndex: 1
+    type: 2
+    targetAngle: 0
+    duration: 2.5
+  - useBeat: 1
+    beat: 132
+    time: 52.8
+    laneIndex: 1
+    type: 1
+    targetAngle: 45
+    duration: 0
+  - useBeat: 1
+    beat: 133
+    time: 53.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 135
+    time: 54
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 137
+    time: 54.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 139
+    time: 55.600002
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 141
+    time: 56.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 143
+    time: 57.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 145
+    time: 58
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 147
+    time: 58.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 149
+    time: 59.600002
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 151
+    time: 60.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 153
+    time: 61.2
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 155
+    time: 62
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 157
+    time: 62.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 159
+    time: 63.600002
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 161
+    time: 64.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 163
+    time: 65.200005
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 163
+    time: 65.200005
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 164
+    time: 65.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 164
+    time: 65.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 165
+    time: 66
+    laneIndex: 1
+    type: 1
+    targetAngle: -45
+    duration: 0
+  - useBeat: 1
+    beat: 167
+    time: 66.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 169
+    time: 67.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 171
+    time: 68.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 173
+    time: 69.200005
+    laneIndex: 1
+    type: 1
+    targetAngle: 90
+    duration: 0
+  - useBeat: 1
+    beat: 175
+    time: 70
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 177
+    time: 70.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 179
+    time: 71.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 181
+    time: 72.4
+    laneIndex: 1
+    type: 1
+    targetAngle: -45
+    duration: 0
+  - useBeat: 1
+    beat: 183
+    time: 73.200005
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 185
+    time: 74
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 187
+    time: 74.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 189
+    time: 75.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 190
+    time: 76
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 191
+    time: 76.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 192
+    time: 76.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 193
+    time: 77.200005
+    laneIndex: 1
+    type: 2
+    targetAngle: 0
+    duration: 4
+  - useBeat: 1
+    beat: 199
+    time: 79.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 201
+    time: 80.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 203
+    time: 81.200005
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 205
+    time: 82
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 207
+    time: 82.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 209
+    time: 83.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 211
+    time: 84.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 213
+    time: 85.200005
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 215
+    time: 86
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 217
+    time: 86.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 219
+    time: 87.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 221
+    time: 88.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 223
+    time: 89.200005
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 225
+    time: 90
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 227
+    time: 90.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 229
+    time: 91.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 230
+    time: 92
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 231
+    time: 92.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 232
+    time: 92.8
+    laneIndex: 1
+    type: 1
+    targetAngle: 90
+    duration: 0
+  - useBeat: 1
+    beat: 233
+    time: 93.200005
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 234
+    time: 93.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 235
+    time: 94
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 236
+    time: 94.4
+    laneIndex: 1
+    type: 1
+    targetAngle: -45
+    duration: 0
+  - useBeat: 1
+    beat: 237
+    time: 94.8
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 238
+    time: 95.200005
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 239
+    time: 95.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 240
+    time: 96
+    laneIndex: 1
+    type: 1
+    targetAngle: -45
+    duration: 0
+  - useBeat: 1
+    beat: 241
+    time: 96.4
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 241.5
+    time: 96.6
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 242
+    time: 96.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 245
+    time: 98
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 247
+    time: 98.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 249
+    time: 99.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 251
+    time: 100.4
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 253
+    time: 101.200005
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 255
+    time: 102
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 257
+    time: 102.8
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 258
+    time: 103.200005
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 259
+    time: 103.6
+    laneIndex: 0
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 260
+    time: 104
+    laneIndex: 2
+    type: 0
+    targetAngle: 0
+    duration: 0
+  - useBeat: 1
+    beat: 261
+    time: 104.4
+    laneIndex: 1
+    type: 1
+    targetAngle: 45
+    duration: 0

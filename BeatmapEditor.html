@@ -321,6 +321,26 @@
             height:3px; background:#fff; border-radius:2px; opacity:.5;
         }
         .note.hold:hover { filter:brightness(1.35); }
+        .note.hold .resize-handle {
+            position:absolute; bottom:-1px; left:0; right:0; height:12px;
+            cursor:ns-resize; background:linear-gradient(to bottom, transparent, rgba(155,81,224,0.5));
+            border-radius:0 0 6px 6px; writing-mode:horizontal-tb;
+            display:flex; align-items:center; justify-content:center;
+            font-size:8px; color:rgba(255,255,255,0.6); opacity:0; transition:opacity .15s;
+        }
+        .note.hold:hover .resize-handle { opacity:1; }
+        .hold-preview {
+            position:absolute; left:50%; width:42%;
+            transform:translateX(-50%);
+            background:rgba(155,81,224,0.2);
+            border:2px dashed var(--purple);
+            border-radius:10px 10px 6px 6px;
+            pointer-events:none; z-index:15;
+            display:none; align-items:center; justify-content:center;
+            color:var(--purple); font-size:10px; font-weight:700;
+            writing-mode:vertical-rl;
+        }
+        .hold-preview.active { display:flex; }
         @keyframes pulse { 0%{width:30px;height:30px;opacity:.8} 100%{width:80px;height:80px;opacity:0} }
     </style>
 </head>
@@ -455,6 +475,7 @@
             <label>배치 도구</label>
             <select id="toolSel">
                 <option value="Punch">🥊 펀치</option>
+                <option value="Hold_1">🟪 롱노트 1박</option>
                 <option value="Hold_2">🟪 롱노트 2박</option>
                 <option value="Hold_4">🟪 롱노트 4박</option>
                 <option value="Hold_8">🟪 롱노트 8박</option>
@@ -681,7 +702,8 @@ window.addEventListener('keyup', e => {
     setKeyCap(k, false);
     if (k==='3' && holdStart!==null) {
         const beat = curBeat();
-        const dur = Math.max(0.1, Math.round((beat-holdStart)*spb()*100)/100);
+        const sub = parseInt(snapSel.value)||4;
+        const dur = Math.max(1/sub, Math.round((beat-holdStart)*sub)/sub);
         addNote(holdStart, 1, 'Hold', dur);
         holdStart = null;
     }
@@ -712,14 +734,15 @@ function updateTable() {
         const tr = document.createElement('tr');
         tr.dataset.beat = n.beat;
         const bc = n.type==='Rotate'?'br':n.type==='Hold'?'bh':'bp';
-        tr.innerHTML = `<td style="font-family:monospace;font-weight:700;color:var(--cyan)">${n.beat.toFixed(2)}</td><td>${n.lane}</td><td><span class="badge ${bc}">${n.type}</span></td><td>${n.param}</td><td><button class="delbtn" onclick="delNote(${i})">✕</button></td>`;
+        const attr = n.type==='Hold' ? `${parseFloat(n.param)||1}박` : n.type==='Rotate' ? `${n.param}°` : '';
+        tr.innerHTML = `<td style="font-family:monospace;font-weight:700;color:var(--cyan)">${n.beat.toFixed(2)}</td><td>${n.lane}</td><td><span class="badge ${bc}">${n.type}</span></td><td>${attr}</td><td><button class="delbtn" onclick="delNote(${i})">✕</button></td>`;
         noteTbody.appendChild(tr);
     });
     noteCnt.textContent = notes.length + '개';
 }
 
 function updateCsv() {
-    let c = `# 곡 이름: untitled\n# BPM: ${bpm}\n# 오디오 오프셋: ${offset}\n`;
+    let c = `# 곡 이름: untitled\n# BPM: ${bpm}\n# 오디오 오프셋: ${offset}\n# Hold 네 번째 값: 지속 박수(Beat)\n`;
     notes.forEach(n => c += `${n.beat.toFixed(2)}, ${n.lane}, ${n.type}, ${n.param}\n`);
     csvArea.value = c;
 }
@@ -827,20 +850,21 @@ function renderNotes() {
             el.style.top = (n.beat*BW)+'px';
         } else if (n.type==='Hold') {
             el.classList.add('hold');
-            const ds=parseFloat(n.param)||1;
-            const db=ds/spb();
+            const db=parseFloat(n.param)||1;
             el.style.height = Math.max(16,db*BW)+'px';
             el.style.top = (n.beat*BW)+'px';
-            el.textContent = ds.toFixed(1)+'s';
+            el.dataset.noteIdx = idx;
+            el.innerHTML = `<span style="pointer-events:none">${db.toFixed(1)}박</span><div class="resize-handle" data-note-idx="${idx}">⋮</div>`;
         }
 
-        el.addEventListener('click', e=>{e.stopPropagation();delNote(idx);});
+        el.addEventListener('click', e=>{ if(e.target.closest('.resize-handle')) return; e.stopPropagation();delNote(idx);});
         le.appendChild(el);
     });
 }
 
-// ─── 레인 클릭: 노트 배치 ───
+// ─── 레인 클릭: 노트 배치 (Hold 레인 제외) ───
 Object.entries(laneEls).forEach(([lk, le]) => {
+    if (lk === '1_hold') return; // Hold 레인은 드래그 방식으로 별도 처리
     le.addEventListener('click', e => {
         if (e.target.classList.contains('note') || e.target.closest?.('.note')) return;
         if (e.target.classList.contains('bl')) return;
@@ -856,15 +880,123 @@ Object.entries(laneEls).forEach(([lk, le]) => {
             addNote(snapped,0,'Punch','');
         } else if (lk==='2') {
             addNote(snapped,2,'Punch','');
-        } else if (lk==='1_hold') {
-            const db = tool==='Hold_4'?4:tool==='Hold_8'?8:2;
-            addNote(snapped,1,'Hold',db*spb());
         } else if (lk==='1_rotate') {
             const ang = tool==='Rot45'?45:tool==='Rot-45'?-45:tool==='Rot-90'?-90:90;
             addNote(snapped,1,'Rotate',ang);
         }
     });
 });
+
+// ─── 롱노트 레인: 드래그로 길이 자유 조절 ───
+{
+    const holdLane = laneEls['1_hold'];
+    let holdDrag = null;    // { startBeat, startY, didDrag }
+    let holdResize = null;  // { noteIdx, startBeat, _curDur }
+
+    // 드래그 프리뷰 엘리먼트
+    const holdPreview = document.createElement('div');
+    holdPreview.className = 'hold-preview';
+    holdLane.appendChild(holdPreview);
+
+    function snapBeat(clientY) {
+        const BW = bw();
+        const vpR = chartVP.getBoundingClientRect();
+        const absY = clientY - vpR.top + chartVP.scrollTop;
+        const sub = parseInt(snapSel.value)||4;
+        return Math.max(0, Math.round((absY/BW)*sub)/sub);
+    }
+
+    holdLane.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+
+        // 리사이즈 핸들 감지
+        const handle = e.target.closest('.resize-handle');
+        if (handle) {
+            e.preventDefault();
+            e.stopPropagation();
+            const idx = parseInt(handle.dataset.noteIdx);
+            if (!isNaN(idx) && notes[idx]) {
+                holdResize = { noteIdx: idx, startBeat: notes[idx].beat, _curDur: undefined };
+            }
+            return;
+        }
+
+        // 기존 노트 클릭은 삭제 처리 (click 이벤트에서 처리)
+        if (e.target.classList.contains('note') || e.target.closest?.('.note')) return;
+        if (e.target.classList.contains('bl')) return;
+
+        e.preventDefault();
+        const startBeat = snapBeat(e.clientY);
+        holdDrag = { startBeat, startY: e.clientY, didDrag: false };
+
+        // 프리뷰 표시
+        const BW = bw();
+        const sub = parseInt(snapSel.value)||4;
+        const minDur = 1/sub;
+        holdPreview.classList.add('active');
+        holdPreview.style.top = (startBeat * BW) + 'px';
+        holdPreview.style.height = Math.max(16, minDur * BW) + 'px';
+        holdPreview.textContent = minDur.toFixed(1) + '박';
+    });
+
+    document.addEventListener('mousemove', e => {
+        if (holdDrag) {
+            if (Math.abs(e.clientY - holdDrag.startY) > 5) holdDrag.didDrag = true;
+            const curBeat = snapBeat(e.clientY);
+            const sub = parseInt(snapSel.value)||4;
+            const minDur = 1/sub;
+            const dur = Math.max(minDur, curBeat - holdDrag.startBeat);
+            const snappedDur = Math.max(minDur, Math.round(dur * sub) / sub);
+            const BW = bw();
+            holdPreview.style.height = Math.max(16, snappedDur * BW) + 'px';
+            holdPreview.textContent = snappedDur.toFixed(1) + '박';
+        }
+        if (holdResize) {
+            const curBeat = snapBeat(e.clientY);
+            const sub = parseInt(snapSel.value)||4;
+            const minDur = 1/sub;
+            const dur = Math.max(minDur, curBeat - holdResize.startBeat);
+            const snappedDur = Math.max(minDur, Math.round(dur * sub) / sub);
+            holdResize._curDur = snappedDur;
+            // 노트 엘리먼트 직접 업데이트 (리렌더 없이)
+            const noteEl = holdLane.querySelector(`[data-note-idx="${holdResize.noteIdx}"]`);
+            if (noteEl) {
+                const BW = bw();
+                noteEl.style.height = Math.max(16, snappedDur * BW) + 'px';
+                const span = noteEl.querySelector('span');
+                if (span) span.textContent = snappedDur.toFixed(1) + '박';
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', e => {
+        if (holdDrag) {
+            if (!holdDrag.didDrag) {
+                // 드래그 없이 클릭만: 프리셋 사용
+                const tool = toolSel.value;
+                const db = tool==='Hold_1'?1:tool==='Hold_4'?4:tool==='Hold_8'?8:2;
+                addNote(holdDrag.startBeat, 1, 'Hold', db);
+            } else {
+                // 드래그: 드래그한 길이로 생성
+                const curBeat = snapBeat(e.clientY);
+                const sub = parseInt(snapSel.value)||4;
+                const minDur = 1/sub;
+                const dur = Math.max(minDur, curBeat - holdDrag.startBeat);
+                const snappedDur = Math.max(minDur, Math.round(dur * sub) / sub);
+                addNote(holdDrag.startBeat, 1, 'Hold', snappedDur);
+            }
+            holdPreview.classList.remove('active');
+            holdDrag = null;
+        }
+        if (holdResize) {
+            if (holdResize._curDur !== undefined) {
+                notes[holdResize.noteIdx].param = holdResize._curDur;
+                refresh();
+            }
+            holdResize = null;
+        }
+    });
+}
 
 // ─── 눈금 자 클릭: 탐색 ───
 chartRuler.addEventListener('click', e=>{

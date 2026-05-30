@@ -94,28 +94,6 @@ public class AudioReactionSystems : MonoBehaviour
 
     void Update()
     {
-        // Debug fallback: Press N key on keyboard to play/pause the assigned audio source for rapid testing in editor
-        if (Keyboard.current != null && Keyboard.current.nKey.wasPressedThisFrame)
-        {
-            if (audioSource != null)
-            {
-                if (audioSource.isPlaying)
-                {
-                    audioSource.Stop();
-                    Debug.Log($"[AudioReactionSystems] Debug N Key: Stopped AudioSource '{audioSource.name}'");
-                }
-                else
-                {
-                    audioSource.Play();
-                    Debug.Log($"[AudioReactionSystems] Debug N Key: Playing AudioSource '{audioSource.name}'");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("[AudioReactionSystems] Debug N Key: No AudioSource is assigned in the Inspector!");
-            }
-        }
-
         if (audioSource == null) return;
 
         audioSource.GetSpectrumData(spectrum, 0, FFTWindow.BlackmanHarris);

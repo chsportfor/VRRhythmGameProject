@@ -288,7 +288,7 @@ public class NoteSpawner : MonoBehaviour
             return;
         }
 
-        if (sortedNotes == null || nextNoteIndex >= sortedNotes.Count)
+        if (sortedNotes == null)
             return;
 
         // ─── 핵심 싱크 계산 ─────────────────────────────────────────
@@ -309,32 +309,47 @@ public class NoteSpawner : MonoBehaviour
             return;
         // ────────────────────────────────────────────────────────────
 
-        while (nextNoteIndex < sortedNotes.Count)
+        if (nextNoteIndex < sortedNotes.Count)
         {
-            NoteData note = sortedNotes[nextNoteIndex];
-
-            // 스폰 시각 = 판정 시각 - 사전 접근 시간
-            float spawnTime = note.time - noteApproachTime;
-
-            if (currentGameTime >= spawnTime)
+            while (nextNoteIndex < sortedNotes.Count)
             {
-                float lateBy = currentGameTime - spawnTime;
-                SpawnNote(note, lateBy);
-                nextNoteIndex++;
-            }
-            else
-            {
-                break;
+                NoteData note = sortedNotes[nextNoteIndex];
+
+                // 스폰 시각 = 판정 시각 - 사전 접근 시간
+                float spawnTime = note.time - noteApproachTime;
+
+                if (currentGameTime >= spawnTime)
+                {
+                    float lateBy = currentGameTime - spawnTime;
+                    SpawnNote(note, lateBy);
+                    nextNoteIndex++;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
 
-        // Check if all notes are spawned and audio has finished playing to trigger OnSongFinished
-        if (isPlaying && nextNoteIndex >= sortedNotes.Count && audioSource != null && !audioSource.isPlaying && AudioSettings.dspTime > dspStartTime)
+        // 🚀 노래 재생 종료 판정 (더 안정적인 감지를 위해 오디오 재생 여부와 실시간 재생 경과 시간(DSP Time) 이중 교차 검증!)
+        if (isPlaying && nextNoteIndex >= sortedNotes.Count && audioSource != null)
         {
-            isPlaying = false;
-            if (GameManager.Instance != null)
+            double elapsedPlaybackTime = AudioSettings.dspTime - dspStartTime;
+            double musicLength = audioSource.clip != null ? (double)audioSource.clip.length : 0f;
+            
+            // 음악 재생이 멈췄거나(isPlaying이 false) 또는 
+            // 실제로 흘러간 시간(elapsedPlaybackTime)이 음악의 총 길이(musicLength)에 도달(오프셋 보정 마진 0.1초 적용)했다면 종료로 판단!
+            bool isAudioFinished = !audioSource.isPlaying || (musicLength > 0.001f && elapsedPlaybackTime >= musicLength - 0.1f);
+
+            if (isAudioFinished && AudioSettings.dspTime > dspStartTime)
             {
-                GameManager.Instance.OnSongFinished();
+                isPlaying = false;
+                Debug.Log($"[NoteSpawner] 곡 완료 트리거! (오디오재생상태: {audioSource.isPlaying}, 경과시간: {elapsedPlaybackTime:F2}초 / {musicLength:F2}초)");
+                
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.OnSongFinished();
+                }
             }
         }
     }
@@ -384,14 +399,15 @@ public class NoteSpawner : MonoBehaviour
 
         if (baseNote == null) return;
 
+        float approachDistance = hit != null ? Vector3.Distance(sp.position, hit.position) : 0f;
+
         if (hit != null)
         {
             baseNote.SetTarget(hit);
 
-            float dist = Vector3.Distance(sp.position, hit.position);
             if (noteApproachTime > 0.001f)
             {
-                baseNote.speed = dist / noteApproachTime;
+                baseNote.speed = approachDistance / noteApproachTime;
 
                 // 지각만큼 미리 당겨서 싱크 보정
                 if (lateBy > 0f)
@@ -415,10 +431,12 @@ public class NoteSpawner : MonoBehaviour
             HoldNote hn = noteObj.GetComponent<HoldNote>();
             if (hn != null)
             {
-                // Convert duration from beats to real-world seconds based on BPM
                 float bpm = currentBeatmap != null ? currentBeatmap.bpm : 120f;
-                float durationInSeconds = data.duration * (60f / bpm);
-                hn.InitializeHold(durationInSeconds, baseNote.speed);
+                if (bpm <= 0f) bpm = 120f;
+
+                float durationBeats = data.duration;
+                float durationInSeconds = durationBeats * (60f / bpm);
+                hn.InitializeHold(durationBeats, durationInSeconds, approachDistance, noteApproachTime, bpm);
             }
         }
     }

@@ -45,6 +45,26 @@ public class UIManager : MonoBehaviour
         
         SubscribeToScoreManager();
         RefreshFromScoreManager();
+
+        // 🚀 [결과 화면 씬-로컬 동적 자식 바인딩]
+        // DontDestroyOnLoad의 렌더링 씹힘 버그 및 수동 좌표 왜곡을 원천 배제하기 위해,
+        // 인게임 HUD 캔버스(UIManager) 산하의 로컬 자식으로 결과 화면(ResultUI)을 동적 소환합니다!
+        GameObject resultObj = new GameObject("ResultUI", typeof(RectTransform));
+        
+        // HUD 캔버스 위치에 정확히 100% 밀착 결합 및 앵커 락!
+        resultObj.transform.SetParent(transform, false);
+        resultObj.transform.localPosition = new Vector3(0f, 0f, -800f); // Z=-800 (0.8m closer to camera, final distance matches 3.2m of MainMenuUI)
+        resultObj.transform.localRotation = Quaternion.identity;
+        
+        ResultUI resultUI = resultObj.AddComponent<ResultUI>();
+        resultObj.gameObject.SetActive(false); // 초기에는 비활성화
+
+        // GameManager 전역 레퍼런스 연결 바인딩
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.resultUI = resultUI;
+            Debug.Log("[UIManager] ResultUI dynamically spawned and bound locally under gameplay HUD canvas.");
+        }
     }
 
     private void OnDisable()

@@ -8,7 +8,8 @@ public enum GameState
 {
     MainMenu,
     SongSelect,
-    Playing
+    Playing,
+    Result
 }
 
 public class GameManager : MonoBehaviour
@@ -29,6 +30,7 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public MainMenuUI mainMenuUI;
     [HideInInspector] public SongSelectUI songSelectUI;
     [HideInInspector] public PauseUI pauseUI;
+    [HideInInspector] public ResultUI resultUI;
 
     private bool isPaused = false;
     private GameState targetStateAfterLoad = GameState.MainMenu;
@@ -341,6 +343,7 @@ public class GameManager : MonoBehaviour
         if (mainMenuUI != null) mainMenuUI.gameObject.SetActive(currentState == GameState.MainMenu);
         if (songSelectUI != null) songSelectUI.gameObject.SetActive(currentState == GameState.SongSelect);
         if (pauseUI != null) pauseUI.gameObject.SetActive(false);
+        if (resultUI != null) resultUI.gameObject.SetActive(currentState == GameState.Result);
 
         if (uiManager != null)
         {
@@ -350,7 +353,7 @@ public class GameManager : MonoBehaviour
         // Manage laser pointer visibility
         if (vrInteractor != null)
         {
-            vrInteractor.SetPointerActive(currentState == GameState.MainMenu || currentState == GameState.SongSelect);
+            vrInteractor.SetPointerActive(currentState == GameState.MainMenu || currentState == GameState.SongSelect || currentState == GameState.Result);
         }
 
         switch (currentState)
@@ -387,8 +390,69 @@ public class GameManager : MonoBehaviour
 
     public void OnSongFinished()
     {
-        Debug.Log("[GameManager] Song finished! Returning to Main Menu.");
-        ReturnToMainMenu();
+        Debug.Log("[GameManager] Song finished! Calculating results and showing Result Screen.");
+
+        // 🚀 1. 씬에 남아있는 모든 잔여 노트들 강제 파괴 정리! (판정 도중 꼬임 예방)
+        BaseNote[] activeNotes = FindObjectsByType<BaseNote>(FindObjectsSortMode.None);
+        foreach (BaseNote note in activeNotes)
+        {
+            if (note != null && note.gameObject != null)
+            {
+                Destroy(note.gameObject);
+            }
+        }
+
+        // 🚀 2. 인게임 라인(TrackManager)의 자식 메쉬들만 안전하게 일괄 오프하여 NullReferenceException 완벽 차단!
+        if (TrackManager.Instance != null)
+        {
+            TrackManager.Instance.SetTrackVisualsActive(false);
+            Debug.Log("[GameManager] Safely hid all track visual children lanes and judgment rings.");
+        }
+
+        // 🚀 3. UIManager HUD 비활성화
+        if (uiManager != null)
+        {
+            uiManager.SetHudVisible(false);
+        }
+
+        // 🚀 4. 게임 상태를 Result로 '먼저' 변경하여 캔버스(Awake)를 먼저 활성화합니다! (텍스트 필드 바인딩 null 방지)
+        ChangeState(GameState.Result);
+
+        // 🚀 5. ScoreManager 데이터 수집 및 ResultUI 정보 바인딩
+        string songTitle = selectedSong != null ? selectedSong.songName : "UNKNOWN";
+        int finalScore = ScoreManager.Instance != null ? ScoreManager.Instance.CurrentScore : 0;
+        float finalAccuracy = ScoreManager.Instance != null ? ScoreManager.Instance.Accuracy : 100f;
+        int totalMisses = ScoreManager.Instance != null ? ScoreManager.Instance.MissCount : 0;
+
+        if (resultUI != null)
+        {
+            resultUI.DisplayResult(songTitle, finalScore, finalAccuracy, totalMisses);
+        }
+    }
+
+    /// <summary>
+    /// 현재 재생 중이던 곡을 처음부터 다시 깔끔하게 재실행(재도전) 합니다.
+    /// </summary>
+    public void RestartCurrentSong()
+    {
+        Time.timeScale = 1f;
+        isPaused = false;
+        
+        if (pauseUI != null) pauseUI.gameObject.SetActive(false);
+        if (resultUI != null) resultUI.gameObject.SetActive(false);
+
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.ResetScore();
+        }
+
+        if (noteSpawner != null)
+        {
+            noteSpawner.ResetGame();
+        }
+
+        Debug.Log($"[GameManager] Restarting active song: {selectedSong?.songName}. Reloading gameplay scene.");
+        StartCoroutine(LoadSceneAsyncRoutine("SampleScene", GameState.Playing));
     }
 
     public void TogglePause()
