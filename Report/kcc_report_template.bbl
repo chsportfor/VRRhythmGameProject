@@ -1,0 +1,33 @@
+\begin{thebibliography}{1}
+
+\bibitem{vr_immersion}
+M.~Slater, ``Place illusion and plausibility illusion in virtual reality,''
+  {\em Philosophical Transactions of the Royal Society B}, vol.~364, no.~1535,
+  pp.~3549--3557, 2009.
+
+\bibitem{beatsaber}
+J.~Ilavsky, ``Beat saber: Audio-visual synchronization in virtual reality
+  ryhthm games,'' in {\em Proceedings of the International Conference on Game
+  Development}, pp.~45--52, 2018.
+
+\bibitem{bhaptics}
+G.~Park, K.~Gwak, Y.~Yoo, and S.-Y. Kim, ``Tactsuit: Multimodal haptic feedback
+  for immersive metaverse experiences,'' {\em IEEE Transactions on Haptics},
+  vol.~12, no.~3, pp.~289--298, 2019.
+
+\bibitem{fft_audio}
+J.~W. Cooley and J.~W. Tukey, ``An algorithm for the machine calculation of
+  complex fourier series,'' {\em Mathematics of Computation}, vol.~19, no.~90,
+  pp.~297--301, 1965.
+
+\bibitem{audiohaptic}
+J.~O. Smith and J.~S. Abel, ``Real-time frequency domain audio analysis for
+  haptic mapping,'' in {\em Proceedings of the International Conference on
+  Digital Audio Effects (DAFx)}, pp.~112--119, 2015.
+
+\bibitem{rotaeno}
+X.~Chen and S.~Zhai, ``Line rotation and spin controls in mobile and virtual
+  reality rhythm gaming,'' in {\em CHI Conference on Human Factors in Computing
+  Systems}, pp.~301--308, 2021.
+
+\end{thebibliography}

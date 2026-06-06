@@ -87,7 +87,17 @@ public class ScoreManager : MonoBehaviour
     public void RegisterHit(int scorePoints, int accuracyPoints)
     {
         score += Mathf.Max(0, scorePoints);
-        combo++;
+        
+        // Good(50점) 판정 이상일 때만 콤보를 증가시키고, 그 미만(Bad: 20점, Poor: 40점 등)일 때는 콤보를 리셋합니다.
+        if (accuracyPoints >= 50)
+        {
+            combo++;
+        }
+        else
+        {
+            combo = 0;
+        }
+        
         judgedNotes++;
         earnedAccuracyPoints += Mathf.Clamp(accuracyPoints, 0, MaxAccuracyPointsPerNote);
 
